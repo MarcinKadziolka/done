@@ -80,6 +80,8 @@ class TaskManager():
         # Delete task from list
         if task in self.tasks:
             self.tasks.remove(task)
+        else:
+            print("Cannot delete, task doesn't exist")
 
     def edit_task(self, old_task: Task, new_task: Task) -> None:
         # Check if the old task is in the list
@@ -89,6 +91,8 @@ class TaskManager():
 
             # Replace the old task with the new task
             self.tasks[index] = new_task
+        else:
+            print("Cannot edit, task doesn't exist")
 
     def write_file(self) -> None:
         raw_tasks = [task.raw_task for task in self.tasks]
