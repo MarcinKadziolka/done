@@ -12,7 +12,7 @@ class Task():
     description: str = field(default="", init=False)
     tags: set[str] = field(default_factory=set, init=False)
     projects: set[str] = field(default_factory=set, init=False)
-    priority: str = field(default=None, init=False)
+    priority: str = field(default="", init=False)
     done: bool = field(default=False, init=False)
     date: datetime.datetime = datetime.datetime.now()
 
@@ -21,7 +21,10 @@ class Task():
         if self.raw_task[0] == 'x' and self.raw_task[1] == " ":
             self.done = True
             self.description = self.raw_task[1:]
+        else:
+            self.description = self.raw_task
 
+        # Get description without words that star with @ or + or (A)
         self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "",
                                   self.description)
 
@@ -72,6 +75,12 @@ class TaskManager():
             for task in file.read().splitlines():
                 self.tasks.append(Task(task))
 
+    def write_file(self) -> None:
+        raw_tasks = [task.raw_task for task in self.tasks]
+        with open(self.file_name, encoding="utf-8", mode="w") as file:
+            file.write("\n".join(raw_tasks))
+        # os.rename('tmp.txt', f'{self.file_name}')
+
     def add_task(self, task: Task) -> None:
         # Append task to list
         self.tasks.append(task)
@@ -93,12 +102,6 @@ class TaskManager():
             self.tasks[index] = new_task
         else:
             print("Cannot edit, task doesn't exist")
-
-    def write_file(self) -> None:
-        raw_tasks = [task.raw_task for task in self.tasks]
-        with open(self.file_name, encoding="utf-8", mode="w") as file:
-            file.write("\n".join(raw_tasks))
-        # os.rename('tmp.txt', f'{self.file_name}')
 
     def __str__(self) -> str:
         raw_tasks = [task.raw_task for task in self.tasks]
