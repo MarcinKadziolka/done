@@ -4,14 +4,14 @@ from dataclasses import dataclass, field
 import datetime
 import os
 import re
-
+import itertools
 
 @dataclass
 class Task():
     raw_task: str
     description: str = field(default="", init=False)
-    tags: set[str] = field(default_factory=set, init=False)
-    projects: set[str] = field(default_factory=set, init=False)
+    tags: list[str] = field(default_factory=lambda: [], init=False)
+    projects: list[str] = field(default_factory=lambda: [], init=False)
     priority: str = field(default="", init=False)
     done: bool = field(default=False, init=False)
     date: datetime.datetime = datetime.datetime.now()
@@ -34,11 +34,11 @@ class Task():
         for word in self.raw_task.split():
             first_char = word[0]
             if first_char == "@":
-                self.tags.add(word[1:])
+                self.tags.append(word)
             elif first_char == "+":
-                self.projects.add(word[1:])
+                self.projects.append(word)
             elif first_char == "(" and len(word) == 3 and word[2] == ")":
-                self.priority += word[1]
+                self.priority += word
 
 
 class TaskParser():
@@ -102,6 +102,51 @@ class TaskManager():
             self.tasks[index] = new_task
         else:
             print("Cannot edit, task doesn't exist")
+
+    def get_all_tasks_with_priority(self) -> list:
+        tasks_with_priority = []
+        for task in self.tasks:
+            if task.priority:
+                tasks_with_priority.append(task.raw_task)
+        return tasks_with_priority
+
+    def get_tasks_by_projects(self) -> dict:
+        # Get all sorted lists of projects
+        all_projects = [sorted(task.projects) for task in self.tasks]
+        # Sort the list of lists
+        all_projects.sort()
+        # Get all unique lists of projects
+        all_projects = list(all_projects for all_projects, _ in itertools.groupby(all_projects))
+
+        tasks_by_projects = {}
+        for projects in all_projects:
+            tasks_with_current_projects = []
+            for task in self.tasks:
+                # Checking if lists contain the same elements
+                if set(projects) == set(task.projects):
+                    tasks_with_current_projects.append(task.raw_task)
+            # Key is a tuple of projects, value is a list of tasks
+            tasks_by_projects[tuple(projects)] = tasks_with_current_projects
+        return tasks_by_projects
+
+    def get_tasks_by_tags(self) -> dict:
+        # Get all sorted lists of tags
+        all_tags = [sorted(task.tags) for task in self.tasks]
+        # Sort the list of lists
+        all_tags.sort()
+        # Get all unique lists of tags
+        all_tags = list(all_tags for all_tags, _ in itertools.groupby(all_tags))
+
+        tasks_by_tags = {}
+        for tags in all_tags:
+            tasks_with_current_tags = []
+            for task in self.tasks:
+                # Checking if lists contain the same elements
+                if set(tags) == set(task.tags):
+                    tasks_with_current_tags.append(task.raw_task)
+            # Key is a tuple of tags, value is a list of tasks
+            tasks_by_tags[tuple(tags)] = tasks_with_current_tags
+        return tasks_by_tags
 
     def __str__(self) -> str:
         raw_tasks = [task.raw_task for task in self.tasks]
