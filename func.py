@@ -111,11 +111,7 @@ class TaskManager():
         return tasks_with_priority
 
     def search(self, to_match: str) -> list:
-        matched = []
-        for task in self.tasks:
-            if to_match in task.raw_task:
-                matched.append(task)
-        return matched
+        return [task for task in self.tasks if to_match in task.raw_task]
 
     def get_tasks_by_projects(self) -> dict:
         # Get all sorted lists of projects
