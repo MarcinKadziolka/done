@@ -15,3 +15,9 @@ for k, v in tags.items():
     for task in v:
         print(task.raw_task)
     print()
+
+results = tm.search("ras")
+print("Tasks containing 'ras':")
+for task in results:
+    print(task.raw_task)
+
