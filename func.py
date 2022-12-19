@@ -107,8 +107,15 @@ class TaskManager():
         tasks_with_priority = []
         for task in self.tasks:
             if task.priority:
-                tasks_with_priority.append(task.raw_task)
+                tasks_with_priority.append(task)
         return tasks_with_priority
+
+    def search(self, to_match: str) -> list:
+        matched = []
+        for task in self.tasks:
+            if to_match in task.raw_task:
+                matched.append(task)
+        return matched
 
     def get_tasks_by_projects(self) -> dict:
         # Get all sorted lists of projects
@@ -124,7 +131,7 @@ class TaskManager():
             for task in self.tasks:
                 # Checking if lists contain the same elements
                 if set(projects) == set(task.projects):
-                    tasks_with_current_projects.append(task.raw_task)
+                    tasks_with_current_projects.append(task)
             # Key is a tuple of projects, value is a list of tasks
             tasks_by_projects[tuple(projects)] = tasks_with_current_projects
         return tasks_by_projects
@@ -143,7 +150,7 @@ class TaskManager():
             for task in self.tasks:
                 # Checking if lists contain the same elements
                 if set(tags) == set(task.tags):
-                    tasks_with_current_tags.append(task.raw_task)
+                    tasks_with_current_tags.append(task)
             # Key is a tuple of tags, value is a list of tasks
             tasks_by_tags[tuple(tags)] = tasks_with_current_tags
         return tasks_by_tags
