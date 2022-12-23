@@ -1,4 +1,3 @@
-from os import wait
 import func
 tm = func.TaskManager("./file.txt")
 
