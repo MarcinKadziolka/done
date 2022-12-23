@@ -6,8 +6,6 @@ import os
 import re
 import itertools
 
-# TODO: Make get_tasks_by_projects() and get_tasks_by_tags() take task list as an argument
-
 
 @dataclass
 class Task:
@@ -71,6 +69,7 @@ class TaskManager:
         for task in tasks:
             print(task.raw_task)
 
+    @staticmethod
     def print_tasks_in_dict(self, tasks_dict: dict) -> None:
         for k, v in tasks_dict.items():
             print(*k)
@@ -196,7 +195,7 @@ def none_priority_to_end_key(task):
     """
     value = task.priority if task.priority else None
 
-    return (value is None, value)
+    return value is None, value
 
 
 def timing(f):
