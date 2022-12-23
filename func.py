@@ -6,8 +6,11 @@ import os
 import re
 import itertools
 
+# TODO: Make get_tasks_by_projects() and get_tasks_by_tags() take task list as an argument
+
+
 @dataclass
-class Task():
+class Task:
     raw_task: str
     description: str = field(default="", init=False)
     tags: list[str] = field(default_factory=lambda: [], init=False)
@@ -18,15 +21,14 @@ class Task():
 
     def __post_init__(self) -> None:
         # Change done to done if first char is x
-        if self.raw_task[0] == 'x' and self.raw_task[1] == " ":
+        if self.raw_task[0] == "x" and self.raw_task[1] == " ":
             self.done = True
             self.description = self.raw_task[1:]
         else:
             self.description = self.raw_task
 
         # Get description without words that star with @ or + or (A)
-        self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "",
-                                  self.description)
+        self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "", self.description)
 
         # Delete trailing whitespace
         self.description = self.description.strip()
@@ -41,13 +43,13 @@ class Task():
                 self.priority += word
 
 
-class TaskParser():
+class TaskParser:
     @staticmethod
     def check_exact_match(to_match, string):
         return re.search(rf"(?:^|\W){to_match}(?:$|\W)", string)
 
 
-class TaskManager():
+class TaskManager:
     def __init__(self, file_path=None) -> None:
         if not file_path:
             return
@@ -62,13 +64,33 @@ class TaskManager():
         self.projects = None
 
     @staticmethod
-    def print_tasks(tasks: list[str]):
-        print(*tasks, sep="\n")
+    def print_tasks(tasks: list) -> None:
+        for task in tasks:
+            print(task.raw_task)
+
+    def print_tasks_by_tags(self, tasks_by_tags: dict) -> None:
+        print("Tasks by tags:")
+        for k, v in tasks_by_tags.items():
+            print(*k)
+            for task in v:
+                print(task.raw_task)
+            print()
+
+    def print_tasks_by_projects(self, tasks_by_projects: dict) -> None:
+        print("Tasks by projects:")
+        for k, v in tasks_by_projects.items():
+            print(*k)
+            for task in v:
+                print(task.raw_task)
+            print()
 
     def filter_tasks(self, to_match: str) -> list:
-        return list(filter(lambda task:
-                           self.parser.check_exact_match(to_match, task),
-                           self.tasks_raw_task))
+        return list(
+            filter(
+                lambda task: self.parser.check_exact_match(to_match, task),
+                self.tasks_raw_task,
+            )
+        )
 
     def read_file(self):
         with open(self.file_path, encoding="utf-8") as file:
@@ -103,57 +125,104 @@ class TaskManager():
         else:
             print("Cannot edit, task doesn't exist")
 
-    def get_all_tasks_with_priority(self) -> list:
-        tasks_with_priority = []
-        for task in self.tasks:
-            if task.priority:
-                tasks_with_priority.append(task)
-        return tasks_with_priority
-
     def search(self, to_match: str) -> list:
         return [task for task in self.tasks if to_match in task.raw_task]
 
     def get_tasks_by_projects(self) -> dict:
+        """
+        Returns a tuple:
+        First item: a dict with projects as keys and tasks as values
+        Second item: done tasks
+        Projects are sorted alphabetically
+        Tasks under current projects are sorted by priority
+        """
         # Get all sorted lists of projects
         all_projects = [sorted(task.projects) for task in self.tasks]
         # Sort the list of lists
         all_projects.sort()
         # Get all unique lists of projects
-        all_projects = list(all_projects for all_projects, _ in itertools.groupby(all_projects))
+        all_projects = list(
+            all_projects for all_projects, _ in itertools.groupby(all_projects)
+        )
+
+        done_tasks = []
+        pending_tasks = []
+        for task in self.tasks:
+            if task.done:
+                done_tasks.append(task)
+            else:
+                pending_tasks.append(task)
 
         tasks_by_projects = {}
         for projects in all_projects:
             tasks_with_current_projects = []
-            for task in self.tasks:
+            for task in pending_tasks:
                 # Checking if lists contain the same elements
                 if set(projects) == set(task.projects):
                     tasks_with_current_projects.append(task)
             # Key is a tuple of projects, value is a list of tasks
-            tasks_by_projects[tuple(projects)] = tasks_with_current_projects
-        return tasks_by_projects
+            tasks_current_tags_sort_priority = sorted(
+                tasks_with_current_projects, key=none_priority_to_end_key
+            )
+            tasks_by_projects[tuple(projects)] = tasks_current_tags_sort_priority
+        return tasks_by_projects, done_tasks
 
     def get_tasks_by_tags(self) -> dict:
+        """
+        Returns a tuple:
+        First item: a dict with tags as keys and tasks as values
+        Second item: done tasks
+        Tags are sorted alphabetically
+        Tasks under current tags are sorted by priority
+        """
+        done_tasks = []
+        pending_tasks = []
+        for task in self.tasks:
+            if task.done:
+                done_tasks.append(task)
+            else:
+                pending_tasks.append(task)
+
         # Get all sorted lists of tags
-        all_tags = [sorted(task.tags) for task in self.tasks]
+        all_tags = [sorted(task.tags) for task in pending_tasks]
         # Sort the list of lists
         all_tags.sort()
         # Get all unique lists of tags
         all_tags = list(all_tags for all_tags, _ in itertools.groupby(all_tags))
 
         tasks_by_tags = {}
+
         for tags in all_tags:
             tasks_with_current_tags = []
-            for task in self.tasks:
+            for task in pending_tasks:
                 # Checking if lists contain the same elements
                 if set(tags) == set(task.tags):
                     tasks_with_current_tags.append(task)
+            # Sorting tasks by priority
+            tasks_current_tags_sort_priority = sorted(
+                tasks_with_current_tags, key=none_priority_to_end_key
+            )
             # Key is a tuple of tags, value is a list of tasks
-            tasks_by_tags[tuple(tags)] = tasks_with_current_tags
-        return tasks_by_tags
+            tasks_by_tags[tuple(tags)] = tasks_current_tags_sort_priority
+        return tasks_by_tags, done_tasks
 
     def __str__(self) -> str:
         raw_tasks = [task.raw_task for task in self.tasks]
         return "\n".join(raw_tasks)
+
+
+def none_priority_to_end_key(task):
+    """
+    Key function for sorting tasks by priority.
+    Tasks with no priority are sorted to the end.
+    Use as key a tuple, like (False, value). If value is None, then the tuple should be (True, None)
+    Tuples are compared by their first element first, then the second, et cetera.
+    False sorts before True.
+    So all None values will be sorted to the end.
+    """
+    value = task.priority if task.priority else None
+
+    return (value is None, value)
 
 
 def timing(f):

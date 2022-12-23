@@ -1,23 +1,13 @@
+from os import wait
 import func
 tm = func.TaskManager("./file.txt")
 projects = tm.get_tasks_by_projects()
-tags = tm.get_tasks_by_tags()
-print("Tasks by projects:")
-for k, v in projects.items():
-    print(*k)
-    for task in v:
-        print(task.raw_task)
-    print()
-
-print("Tasks by tags:")
-for k, v in tags.items():
-    print(*k)
-    for task in v:
-        print(task.raw_task)
-    print()
-
-results = tm.search("ras")
-print("Tasks containing 'ras':")
-for task in results:
-    print(task.raw_task)
+tags, done = tm.get_tasks_by_tags()
+tm.print_tasks_by_tags(tags)
+tm.print_tasks(done)
+# tm.print_tasks_by_projects(projects)
+print()
+result = tm.search("@home")
+print("Search fraze: @home")
+tm.print_tasks(result)
 
