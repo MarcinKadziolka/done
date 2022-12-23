@@ -70,7 +70,7 @@ class TaskManager:
             print(task.raw_task)
 
     @staticmethod
-    def print_tasks_in_dict(self, tasks_dict: dict) -> None:
+    def print_tasks_in_dict(tasks_dict: dict) -> None:
         for k, v in tasks_dict.items():
             print(*k)
             for task in v:
