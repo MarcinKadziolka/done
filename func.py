@@ -56,29 +56,23 @@ class TaskManager:
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
         self.tasks = []
+        self.read_file()  # Reads tasks to tasks list
         self.parser = TaskParser()
-        self.read_file()
-        # Process tags and projects
-        # Dicts?
-        self.tags = None
-        self.projects = None
 
+    def get_done_tasks(self):
+        return [task for task in self.tasks if task.done]
+
+    def get_pending_tasks(self):
+        return [task for task in self.tasks if not task.done]
+
+    # Printing methods
     @staticmethod
     def print_tasks(tasks: list) -> None:
         for task in tasks:
             print(task.raw_task)
 
-    def print_tasks_by_tags(self, tasks_by_tags: dict) -> None:
-        print("Tasks by tags:")
-        for k, v in tasks_by_tags.items():
-            print(*k)
-            for task in v:
-                print(task.raw_task)
-            print()
-
-    def print_tasks_by_projects(self, tasks_by_projects: dict) -> None:
-        print("Tasks by projects:")
-        for k, v in tasks_by_projects.items():
+    def print_tasks_in_dict(self, tasks_dict: dict) -> None:
+        for k, v in tasks_dict.items():
             print(*k)
             for task in v:
                 print(task.raw_task)
@@ -128,16 +122,14 @@ class TaskManager:
     def search(self, to_match: str) -> list:
         return [task for task in self.tasks if to_match in task.raw_task]
 
-    def get_tasks_by_projects(self) -> dict:
+    def get_tasks_by_projects(self, tasks) -> dict:
         """
-        Returns a tuple:
-        First item: a dict with projects as keys and tasks as values
-        Second item: done tasks
+        Returns a dict with projects as keys and tasks as values
         Projects are sorted alphabetically
         Tasks under current projects are sorted by priority
         """
         # Get all sorted lists of projects
-        all_projects = [sorted(task.projects) for task in self.tasks]
+        all_projects = [sorted(task.projects) for task in tasks]
         # Sort the list of lists
         all_projects.sort()
         # Get all unique lists of projects
@@ -145,18 +137,10 @@ class TaskManager:
             all_projects for all_projects, _ in itertools.groupby(all_projects)
         )
 
-        done_tasks = []
-        pending_tasks = []
-        for task in self.tasks:
-            if task.done:
-                done_tasks.append(task)
-            else:
-                pending_tasks.append(task)
-
         tasks_by_projects = {}
         for projects in all_projects:
             tasks_with_current_projects = []
-            for task in pending_tasks:
+            for task in tasks:
                 # Checking if lists contain the same elements
                 if set(projects) == set(task.projects):
                     tasks_with_current_projects.append(task)
@@ -165,26 +149,16 @@ class TaskManager:
                 tasks_with_current_projects, key=none_priority_to_end_key
             )
             tasks_by_projects[tuple(projects)] = tasks_current_tags_sort_priority
-        return tasks_by_projects, done_tasks
+        return tasks_by_projects
 
-    def get_tasks_by_tags(self) -> dict:
+    def get_tasks_by_tags(self, tasks) -> dict:
         """
-        Returns a tuple:
-        First item: a dict with tags as keys and tasks as values
-        Second item: done tasks
+        Returns dict with tags as keys and tasks as values
         Tags are sorted alphabetically
         Tasks under current tags are sorted by priority
         """
-        done_tasks = []
-        pending_tasks = []
-        for task in self.tasks:
-            if task.done:
-                done_tasks.append(task)
-            else:
-                pending_tasks.append(task)
-
         # Get all sorted lists of tags
-        all_tags = [sorted(task.tags) for task in pending_tasks]
+        all_tags = [sorted(task.tags) for task in tasks]
         # Sort the list of lists
         all_tags.sort()
         # Get all unique lists of tags
@@ -194,7 +168,7 @@ class TaskManager:
 
         for tags in all_tags:
             tasks_with_current_tags = []
-            for task in pending_tasks:
+            for task in tasks:
                 # Checking if lists contain the same elements
                 if set(tags) == set(task.tags):
                     tasks_with_current_tags.append(task)
@@ -204,7 +178,7 @@ class TaskManager:
             )
             # Key is a tuple of tags, value is a list of tasks
             tasks_by_tags[tuple(tags)] = tasks_current_tags_sort_priority
-        return tasks_by_tags, done_tasks
+        return tasks_by_tags
 
     def __str__(self) -> str:
         raw_tasks = [task.raw_task for task in self.tasks]
