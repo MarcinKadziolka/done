@@ -9,7 +9,7 @@ import itertools
 
 @dataclass
 class Task:
-    raw_task: str
+    raw_text: str
     description: str = field(default="", init=False)
     tags: list[str] = field(default_factory=lambda: [], init=False)
     projects: list[str] = field(default_factory=lambda: [], init=False)
@@ -19,11 +19,11 @@ class Task:
 
     def __post_init__(self) -> None:
         # Change done to done if first char is x
-        if self.raw_task[0] == "x" and self.raw_task[1] == " ":
+        if self.raw_text[0] == "x" and self.raw_text[1] == " ":
             self.done = True
-            self.description = self.raw_task[1:]
+            self.description = self.raw_text[1:]
         else:
-            self.description = self.raw_task
+            self.description = self.raw_text
 
         # Get description without words that star with @ or + or (A)
         self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "", self.description)
@@ -31,7 +31,7 @@ class Task:
         # Delete trailing whitespace
         self.description = self.description.strip()
 
-        for word in self.raw_task.split():
+        for word in self.raw_text.split():
             first_char = word[0]
             if first_char == "@":
                 self.tags.append(word)
@@ -67,14 +67,14 @@ class TaskManager:
     @staticmethod
     def print_tasks(tasks: list) -> None:
         for task in tasks:
-            print(task.raw_task)
+            print(task.raw_text)
 
     @staticmethod
     def print_tasks_in_dict(tasks_dict: dict) -> None:
         for k, v in tasks_dict.items():
             print(*k)
             for task in v:
-                print(task.raw_task)
+                print(task.raw_text)
             print()
 
     def filter_tasks(self, to_match: str) -> list:
@@ -91,7 +91,7 @@ class TaskManager:
                 self.tasks.append(Task(task))
 
     def write_file(self) -> None:
-        raw_tasks = [task.raw_task for task in self.tasks]
+        raw_tasks = [task.raw_text for task in self.tasks]
         with open(self.file_name, encoding="utf-8", mode="w") as file:
             file.write("\n".join(raw_tasks))
         # os.rename('tmp.txt', f'{self.file_name}')
@@ -119,7 +119,11 @@ class TaskManager:
             print("Cannot edit, task doesn't exist")
 
     def search(self, to_match: str) -> list:
-        return [task for task in self.tasks if to_match in task.raw_task]
+        """
+        Returns list of Task objects that match the search
+        Search is not case sensitive
+        """
+        return list(filter(lambda task: to_match.lower() in task.raw_text.lower(), self.tasks))
 
     def get_tasks_by_projects(self, tasks) -> dict:
         """
@@ -180,7 +184,7 @@ class TaskManager:
         return tasks_by_tags
 
     def __str__(self) -> str:
-        raw_tasks = [task.raw_task for task in self.tasks]
+        raw_tasks = [task.raw_text for task in self.tasks]
         return "\n".join(raw_tasks)
 
 
