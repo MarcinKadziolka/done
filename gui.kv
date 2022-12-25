@@ -27,11 +27,13 @@ MDBoxLayout:
 
     AddTaskButton:
         id: add_task_button
+        size_hint_x: 0.1
+        size_hint_y: 0.1
         valign: 'center'
         halign: 'center'
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         icon: 'plus'
         text: 'Add Task'
-        # on_release: app.add_task()
+        on_release: self.add_task()
 
 
