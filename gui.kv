@@ -1,38 +1,37 @@
 MDBoxLayout:
     orientation: 'vertical'
     spacing: 1
-    MDBoxLayout:
-        size_hint_y: .1
-        MDIconButton:
-            icon: 'magnify'
-            size_hint_y: 1
-        SearchTextInput:
-            id: Search_TextInput_id
-            size_hint_y: 1
-            pos_hint:{ 'left':0 , 'top': 1}
-            hint_text: 'search'
-            hint_text_color: 1,1,1,1
-            icon_left: 'magnify'
-            mode: "fill"
-            # line_color: [1,1,1,1] */
-            # color_normal: [1,1,1,1] */
+    SearchTextInput:
+        id: search_text_input
+        mode: "round"
 
-            font_size: .35 * self.height
-            active_line: False
-            multiline: False
+        size_hint_y: self.default_size_hint_y
+        size_hint_x: self.default_size_hint_x
+        valign: 'center'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        hint_text: 'search'
+        hint_text_color: 1,1,1,1
+        icon_left: 'magnify'
+        line_color: [1,1,1,1]
+        color_normal: [1,1,1,1]
 
-        MDIconButton:
-            icon: 'close'
-            size_hint_y:1
-            text_color: 0,0,0,1
-    ScrollView:
+        font_size: .35 * self.height
+        active_line: False
+        multiline: False
+
+    TasksScrollView:
         id: main
         MDList:
             id: mdlist
-            OneLineListItem:
-                id: item1
-                text: "Just an item"
-            OneLineListItem:
-                id: item1
-                text: "Just an item 2"
+
+    AddTaskButton:
+        id: add_task_button
+        valign: 'center'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        icon: 'plus'
+        text: 'Add Task'
+        # on_release: app.add_task()
+
 
