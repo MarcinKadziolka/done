@@ -123,7 +123,9 @@ class TaskManager:
         Returns list of Task objects that match the search
         Search is not case sensitive
         """
-        return list(filter(lambda task: to_match.lower() in task.raw_text.lower(), self.tasks))
+        return list(
+            filter(lambda task: to_match.lower() in task.raw_text.lower(), self.tasks)
+        )
 
     def get_tasks_by_projects(self, tasks) -> dict:
         """
