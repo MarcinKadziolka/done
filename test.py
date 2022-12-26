@@ -1,6 +1,19 @@
 import func
 
 
+class TestEditing:
+    def test_editing(self):
+        tm = func.TaskManager()
+        tm.tasks = [
+            func.Task("Posprzątać pokój"),
+            func.Task("Zrobić pranie"),
+            func.Task("Zrobić zakupy"),
+            func.Task("Przyrządzić obiad"),
+        ]
+        tm.edit_task(func.Task("Posprzątać pokój"), func.Task("Posprzątać mieszkanie"))
+        assert func.Task("Posprzątać mieszkanie") in tm.tasks
+
+
 class TestSearch:
     def test_search(self):
         tm = func.TaskManager()
