@@ -10,6 +10,7 @@ import itertools
 @dataclass
 class Task:
     raw_text: str
+    raw_text_lower: str = field(default="", init=False)
     description: str = field(default="", init=False)
     tags: list[str] = field(default_factory=lambda: [], init=False)
     projects: list[str] = field(default_factory=lambda: [], init=False)
@@ -30,6 +31,7 @@ class Task:
         else:
             self.description = self.raw_text
 
+        self.raw_text_lower = self.raw_text.lower()
         # Get description without words that start with '@' or '+', omit '(A)'
         self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "", self.description)
 
@@ -110,8 +112,9 @@ class TaskManager:
         Returns list of Task objects that match the search
         It's not case-sensitive
         """
+        to_match_lower = to_match.lower()
         return list(
-            filter(lambda task: to_match.lower() in task.raw_text.lower(), self.tasks)
+            filter(lambda task: to_match_lower in task.raw_text_lower, self.tasks)
         )
 
     def get_tasks_by_projects(self, tasks) -> dict:
