@@ -15,22 +15,28 @@ class Task:
     projects: list[str] = field(default_factory=lambda: [], init=False)
     priority: str = field(default="", init=False)
     done: bool = field(default=False, init=False)
+
+    # Doesn't work, updates with every start of the program
     date: datetime.datetime = datetime.datetime.now()
 
     def __post_init__(self) -> None:
         # Change done to done if first char is x
+        # xsomething != done
+        # x something == done
         if self.raw_text[0] == "x" and self.raw_text[1] == " ":
             self.done = True
+            # Description should be without the x flag
             self.description = self.raw_text[1:]
         else:
             self.description = self.raw_text
 
-        # Get description without words that star with @ or + or (A)
+        # Get description without words that start with '@' or '+', omit '(A)'
         self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "", self.description)
 
         # Delete trailing whitespace
         self.description = self.description.strip()
 
+        # Get tags, projects and priority by checking first char of each word
         for word in self.raw_text.split():
             first_char = word[0]
             if first_char == "@":
@@ -53,8 +59,10 @@ class TaskManager:
             return
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
+        # Must be intilized before read_file
         self.tasks = []
-        self.read_file()  # Reads tasks to tasks list
+        # Reads tasks to tasks list
+        self.read_file()
         self.parser = TaskParser()
 
     def get_done_tasks(self):
@@ -86,22 +94,23 @@ class TaskManager:
         )
 
     def read_file(self):
+        # Saves every line of the file as a task
         with open(self.file_path, encoding="utf-8") as file:
             for task in file.read().splitlines():
                 self.tasks.append(Task(task))
 
     def write_file(self) -> None:
+        # Writes every task as separate line to the file
         raw_tasks = [task.raw_text for task in self.tasks]
         with open(self.file_name, encoding="utf-8", mode="w") as file:
             file.write("\n".join(raw_tasks))
-        # os.rename('tmp.txt', f'{self.file_name}')
 
     def add_task(self, task: Task) -> None:
         # Append task to list
         self.tasks.append(task)
 
     def delete_task(self, task: Task):
-        # Delete task from list
+        # Delete task from list if it exists
         if task in self.tasks:
             self.tasks.remove(task)
         else:
@@ -112,7 +121,6 @@ class TaskManager:
         if old_task in self.tasks:
             # If it's in the list, find its index
             index = self.tasks.index(old_task)
-
             # Replace the old task with the new task
             self.tasks[index] = new_task
         else:
@@ -131,7 +139,7 @@ class TaskManager:
         """
         Returns a dict with projects as keys and tasks as values
         Projects are sorted alphabetically
-        Tasks under current projects are sorted by priority
+        Tasks under current projects are sorted by priority (A -> B -> ... -> None)
         """
         # Get all sorted lists of projects
         all_projects = [sorted(task.projects) for task in tasks]
@@ -149,10 +157,11 @@ class TaskManager:
                 # Checking if lists contain the same elements
                 if set(projects) == set(task.projects):
                     tasks_with_current_projects.append(task)
-            # Key is a tuple of projects, value is a list of tasks
+            # Sorting tasks by priority (A -> B -> ... -> None)
             tasks_current_tags_sort_priority = sorted(
                 tasks_with_current_projects, key=none_priority_to_end_key
             )
+            # Key is a tuple of projects, value is a list of tasks
             tasks_by_projects[tuple(projects)] = tasks_current_tags_sort_priority
         return tasks_by_projects
 
@@ -160,7 +169,7 @@ class TaskManager:
         """
         Returns dict with tags as keys and tasks as values
         Tags are sorted alphabetically
-        Tasks under current tags are sorted by priority
+        Tasks under current tags are sorted by priority (A -> B -> ... -> None)
         """
         # Get all sorted lists of tags
         all_tags = [sorted(task.tags) for task in tasks]
@@ -177,7 +186,7 @@ class TaskManager:
                 # Checking if lists contain the same elements
                 if set(tags) == set(task.tags):
                     tasks_with_current_tags.append(task)
-            # Sorting tasks by priority
+            # Sorting tasks by priority (A -> B -> ... -> None)
             tasks_current_tags_sort_priority = sorted(
                 tasks_with_current_tags, key=none_priority_to_end_key
             )
