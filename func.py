@@ -16,7 +16,7 @@ class Task:
     priority: str = field(default="", init=False)
     done: bool = field(default=False, init=False)
 
-    # Doesn't work, updates with every start of the program
+    # TODO: Doesn't work, updates with every start of the program
     date: datetime.datetime = datetime.datetime.now()
 
     def __post_init__(self) -> None:
@@ -71,7 +71,6 @@ class TaskManager:
     def get_pending_tasks(self):
         return [task for task in self.tasks if not task.done]
 
-    # Printing methods
     @staticmethod
     def print_tasks(tasks: list) -> None:
         for task in tasks:
@@ -94,7 +93,7 @@ class TaskManager:
         )
 
     def read_file(self):
-        # Saves every line of the file as a task
+        # Reads every line of the file as a task
         with open(self.file_path, encoding="utf-8") as file:
             for task in file.read().splitlines():
                 self.tasks.append(Task(task))
@@ -106,22 +105,17 @@ class TaskManager:
             file.write("\n".join(raw_tasks))
 
     def add_task(self, task: Task) -> None:
-        # Append task to list
         self.tasks.append(task)
 
     def delete_task(self, task: Task):
-        # Delete task from list if it exists
         if task in self.tasks:
             self.tasks.remove(task)
         else:
             print("Cannot delete, task doesn't exist")
 
     def edit_task(self, old_task: Task, new_task: Task) -> None:
-        # Check if the old task is in the list
         if old_task in self.tasks:
-            # If it's in the list, find its index
             index = self.tasks.index(old_task)
-            # Replace the old task with the new task
             self.tasks[index] = new_task
         else:
             print("Cannot edit, task doesn't exist")
@@ -211,15 +205,3 @@ def none_priority_to_end_key(task):
     value = task.priority if task.priority else None
 
     return value is None, value
-
-
-def timing(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        ts = time()
-        result = f(*args, **kwargs)
-        te = time()
-        print(f"{f.__name__=}, {args=}, {kwargs=} took: {te - ts:.3f} seconds")
-        return result
-
-    return wrap
