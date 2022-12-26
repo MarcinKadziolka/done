@@ -95,13 +95,29 @@ class EditTaskField(Popup):
         self.dismiss()
 
 
+class DeleteIcon(IconRightWidget):
+    def __init__(self, my_widget, **kwargs):
+        super(DeleteIcon, self).__init__(**kwargs)
+        self.my_widget = my_widget
+
+    def on_press(self):
+        print("Delete icon pressed")
+        self.delete_task()
+
+    def delete_task(self, *args):
+        print(f"Deleting task {self.my_widget.text}")
+        tm.delete_task(func.Task(self.my_widget.text))
+        app = MDApp.get_running_app()
+        # Clear widget
+        app.root.ids.mdlist.clear_widgets()
+        for task in tm.tasks:
+            app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
+
+
 class TaskItem(OneLineAvatarIconListItem):
-    def __init__(self, icon, **kwargs):
-        print(f"{kwargs}")
-        super(TaskItem, self).__init__(icon, **kwargs)
+    def __init__(self, **kwargs):
+        super(TaskItem, self).__init__(DeleteIcon(self, icon="trash-can-outline"), **kwargs)
         self.edit_task_popup = EditTaskField(self)
-        self.icon = icon
-        print(f"{self.icon=}")
 
     def on_press(self):
         self.edit_task_popup.open()
@@ -138,17 +154,15 @@ class SearchTextInput(MDTextField):
             )
             anim.start(self)  # start the animation
 
-    def display_search_resulst(self, *args):
+    def display_search_results(self, *args):
         search_results = tm.search(self.text)
         app = MDApp.get_running_app()
         app.root.ids.mdlist.clear_widgets()
         for task in search_results:
-            app.root.ids.mdlist.add_widget(
-                TaskItem(IconRightWidget(icon="minus"), text=task.raw_text)
-            )
+            app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
     def on_text(self, instance, value):
-        self.display_search_resulst()
+        self.display_search_results()
 
 
 class MainApp(MDApp):
@@ -161,9 +175,7 @@ class MainApp(MDApp):
 
         root = Builder.load_file("gui.kv")
         for task in tm.tasks:
-            root.ids.mdlist.add_widget(
-                TaskItem(IconRightWidget(icon="trash-can-outline"), text=task.raw_text)
-            )
+            root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
         return root
 
