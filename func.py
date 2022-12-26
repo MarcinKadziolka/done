@@ -47,23 +47,16 @@ class Task:
                 self.priority += word
 
 
-class TaskParser:
-    @staticmethod
-    def check_exact_match(to_match, string):
-        return re.search(rf"(?:^|\W){to_match}(?:$|\W)", string)
-
-
 class TaskManager:
     def __init__(self, file_path=None) -> None:
         if not file_path:
             return
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
-        # Must be intilized before read_file
+        # Must be initialized before read_file
         self.tasks = []
         # Reads tasks to tasks list
         self.read_file()
-        self.parser = TaskParser()
 
     def get_done_tasks(self):
         return [task for task in self.tasks if task.done]
@@ -83,14 +76,6 @@ class TaskManager:
             for task in v:
                 print(task.raw_text)
             print()
-
-    def filter_tasks(self, to_match: str) -> list:
-        return list(
-            filter(
-                lambda task: self.parser.check_exact_match(to_match, task),
-                self.tasks_raw_task,
-            )
-        )
 
     def read_file(self):
         # Reads every line of the file as a task
@@ -123,7 +108,7 @@ class TaskManager:
     def search(self, to_match: str) -> list:
         """
         Returns list of Task objects that match the search
-        Search is not case sensitive
+        It's not case-sensitive
         """
         return list(
             filter(lambda task: to_match.lower() in task.raw_text.lower(), self.tasks)
