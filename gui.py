@@ -13,12 +13,11 @@ from kivymd.uix.list import IconRightWidget
 import func
 
 
-tm = func.TaskManager("./file.txt")
+task_manager = func.TaskManager("./file.txt")
 
 
 class TaskItem(OneLineAvatarIconListItem):
     def __init__(self, **kwargs):
-        # Upon creation adds DeleteIcon by defalt
         # Passes self to icon so it can access task text
         super(TaskItem, self).__init__(
             DeleteIcon(self, icon="trash-can-outline"), **kwargs
@@ -35,6 +34,7 @@ class EditTaskField(Popup):
     def __init__(self, parent_widget, **kwargs):
         # parent_widget should be the object where popup was called from
         # because self.parent is None
+        # it's required for access
         super(EditTaskField, self).__init__(**kwargs)
         Window.borderless = True
         # Hide the title
@@ -50,15 +50,10 @@ class EditTaskField(Popup):
         )
         self.content.add_widget(self.input_field)
 
-    # Changes the original text with text provided in the text field
-    # Edits task in TaskManager
-    # Updates the original text in gui with text provided
-    # Closes itsel
     def accept_task_edit(self, *args):
         print("Enter pressed")
         print(f"Editing task {self.parent_widget.text} to {self.input_field.text}")
-        print(tm)
-        tm.edit_task(
+        task_manager.edit_task(
             old_task=func.Task(self.parent_widget.text),
             new_task=func.Task(self.input_field.text),
         )
@@ -95,16 +90,18 @@ class AddTaskTextField(Popup):
         self.content = MDBoxLayout(orientation="horizontal")
         self.content.add_widget(self.input_field)
 
-    # Adds the task to task manager list, updates display and closes the popup
     def on_enter(self, *args):
         print("Enter pressed")
-        tm.add_task(func.Task(self.input_field.text))
+        task_manager.add_task(func.Task(self.input_field.text))
+
         app = MDApp.get_running_app()
         app.root.ids.mdlist.clear_widgets()
+
         self.input_field.text = ""
-        # Update the task list
-        for task in tm.tasks:
+
+        for task in task_manager.tasks:
             app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
+
         self.dismiss()
 
 
@@ -114,22 +111,22 @@ class DeleteIcon(IconRightWidget):
         # because self.parent is None
         # it's passed so this class can access text from parent
         super(DeleteIcon, self).__init__(**kwargs)
+
         self.parent_widget = parent_widget
 
     def on_press(self):
         print("Delete icon pressed")
         self.delete_task()
 
-    # Delets task from TaskManager
-    # Updates the task list in gui by displaying all tasks again without the deleted one
     # TODO: Make it so that it doesn't display all tasks again, but just removes the deleted one
     def delete_task(self, *args):
         print(f"Deleting task {self.parent_widget.text}")
-        tm.delete_task(func.Task(self.parent_widget.text))
+        task_manager.delete_task(func.Task(self.parent_widget.text))
+
         app = MDApp.get_running_app()
-        # Clear widget
         app.root.ids.mdlist.clear_widgets()
-        for task in tm.tasks:
+
+        for task in task_manager.tasks:
             app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
 
@@ -143,8 +140,8 @@ class SearchTextInput(MDTextField):
 
     def on_focus(self, *args):
         duration = 0.05
-        if self.focus:  # gained focus
-            # create an animation that scales the text field down
+        if self.focus:
+            # Scaling up
             anim = Animation(
                 size_hint=(
                     self.default_size_hint_x + 0.05,
@@ -152,9 +149,9 @@ class SearchTextInput(MDTextField):
                 ),
                 duration=duration,
             )
-            anim.start(self)  # start the animation
-        else:  # lost focus
-            # create an animation that scales the text field up
+            anim.start(self)
+        else:
+            # Scaling to default
             anim = Animation(
                 size_hint=(self.default_size_hint_x, self.default_size_hint_y),
                 duration=duration,
@@ -162,9 +159,11 @@ class SearchTextInput(MDTextField):
             anim.start(self)  # start the animation
 
     def display_search_results(self, *args):
-        search_results = tm.search(self.text)
+        search_results = task_manager.search(self.text)
+
         app = MDApp.get_running_app()
         app.root.ids.mdlist.clear_widgets()
+
         for task in search_results:
             app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
@@ -182,7 +181,7 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Dark"
 
         root = Builder.load_file("gui.kv")
-        for task in tm.tasks:
+        for task in task_manager.tasks:
             root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
         return root
@@ -190,5 +189,4 @@ class MainApp(MDApp):
 
 if __name__ == "__main__":
     MainApp().run()
-    # Writing everything to file after app is closed
-    tm.write_file()
+    task_manager.write_file()
