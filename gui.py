@@ -31,7 +31,7 @@ class TaskItem(OneLineAvatarIconListItem):
 
 
 class EditTaskField(Popup):
-    def __init__(self, parent_widget, **kwargs):
+    def __init__(self, calling_widget, **kwargs):
         # parent_widget should be the object where popup was called from
         # because self.parent is None
         # it's required for access
@@ -40,24 +40,26 @@ class EditTaskField(Popup):
         # Hide the title
         self.title = ""
         self.separator_height = 0
-        self.parent_widget = parent_widget
+        self.calling_widget = calling_widget
         self.size_hint = (0.8, 0.1)
         self.content = MDBoxLayout(orientation="horizontal")
 
         # on_text_validate is what happens when enter is pressed
-        self.input_field = MDTextField(
-            on_text_validate=self.accept_task_edit, text=self.parent_widget.text
+        self.current_input_field = MDTextField(
+            on_text_validate=self.accept_task_edit, text=self.calling_widget.text
         )
-        self.content.add_widget(self.input_field)
+        self.content.add_widget(self.current_input_field)
 
     def accept_task_edit(self, *args):
         print("Enter pressed")
-        print(f"Editing task {self.parent_widget.text} to {self.input_field.text}")
-        task_manager.edit_task(
-            old_task=func.Task(self.parent_widget.text),
-            new_task=func.Task(self.input_field.text),
+        print(
+            f"Editing task {self.calling_widget.text} to {self.current_input_field.text}"
         )
-        self.parent_widget.text = self.input_field.text
+        task_manager.edit_task(
+            old_task=func.Task(self.calling_widget.text),
+            new_task=func.Task(self.current_input_field.text),
+        )
+        self.calling_widget.text = self.current_input_field.text
         self.dismiss()
 
 
@@ -106,28 +108,20 @@ class AddTaskTextField(Popup):
 
 
 class DeleteIcon(IconRightWidget):
-    def __init__(self, parent_widget, **kwargs):
+    def __init__(self, calling_widget, **kwargs):
         # parent_widget should be the object where popup was called from
         # because self.parent is None
         # it's passed so this class can access text from parent
         super(DeleteIcon, self).__init__(**kwargs)
-
-        self.parent_widget = parent_widget
+        self.calling_widget = calling_widget
 
     def on_press(self):
-        print("Delete icon pressed")
         self.delete_task()
 
-    # TODO: Make it so that it doesn't display all tasks again, but just removes the deleted one
     def delete_task(self, *args):
-        print(f"Deleting task {self.parent_widget.text}")
-        task_manager.delete_task(func.Task(self.parent_widget.text))
-
-        app = MDApp.get_running_app()
-        app.root.ids.mdlist.clear_widgets()
-
-        for task in task_manager.tasks:
-            app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
+        print(f"Deleting task {self.calling_widget.text}")
+        task_manager.delete_task(func.Task(self.calling_widget.text))
+        self.calling_widget.parent.remove_widget(self.calling_widget)
 
 
 class TasksScrollView(ScrollView):
