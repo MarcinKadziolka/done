@@ -62,6 +62,10 @@ class EditTaskField(Popup):
         task_manager.write_file()
         self.task_list_item.task_object = new_task
         self.task_list_item.text = self.current_input_field.text
+
+        app = MDApp.get_running_app()
+        current_search_text = app.root.ids.search_text_input.text
+        global_display_search_results(current_search_text)
         self.dismiss()
 
 
@@ -104,6 +108,10 @@ class AddTaskTextField(Popup):
         app = MDApp.get_running_app()
         app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
         self.input_field.text = ""
+
+        current_search_text = app.root.ids.search_text_input.text
+        global_display_search_results(current_search_text)
+
         self.dismiss()
 
 
@@ -127,6 +135,29 @@ class DeleteIcon(IconRightWidget):
 
 class TasksScrollView(ScrollView):
     pass
+
+
+def global_display_search_results(search_text):
+    search_text = search_text.lower()
+    app = MDApp.get_running_app()
+    task_widgets = app.root.ids.mdlist.children
+
+    searched = []
+    unsearched = []
+
+    for task_widget in task_widgets:
+        if search_text in task_widget.text.lower():
+            task_widget.opacity = 1
+            task_widget.disabled = False
+            searched.append(task_widget)
+        else:
+            task_widget.opacity = 0
+            task_widget.disabled = True
+            unsearched.append(task_widget)
+    searched_sorted_by_priority = sorted(
+        searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
+    )
+    app.root.ids.mdlist.children = unsearched + searched_sorted_by_priority
 
 
 class SearchTextInput(MDTextField):
@@ -171,8 +202,7 @@ class SearchTextInput(MDTextField):
                 task_widget.disabled = True
                 unsearched.append(task_widget)
         searched_sorted_by_priority = sorted(
-            searched, key=func.none_priority_to_end_key_for_widgets,
-            reverse=True
+            searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
         )
         app.root.ids.mdlist.children = unsearched + searched_sorted_by_priority
 
