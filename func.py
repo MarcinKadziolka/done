@@ -1,11 +1,8 @@
-from functools import wraps
-from time import time
 from dataclasses import dataclass, field
 import datetime
 import os
 import re
 import itertools
-from typing import List
 
 
 @dataclass
@@ -142,7 +139,6 @@ class TaskManager:
         all_projects = list(
             all_projects for all_projects, _ in itertools.groupby(all_projects)
         )
-
         tasks_by_projects = {}
         for projects in all_projects:
             tasks_with_current_projects = []
@@ -202,5 +198,19 @@ def none_priority_to_end_key(task):
     So all None values will be sorted to the end.
     """
     value = task.priority if task.priority else None
+
+    return value is None, value
+
+
+def none_priority_to_end_key_for_widgets(task_widget):
+    """
+    Key function for sorting tasks by priority.
+    Tasks with no priority are sorted to the end.
+    Use as key a tuple, like (False, value). If value is None, then the tuple should be (True, None)
+    Tuples are compared by their first element first, then the second, et cetera.
+    False sorts before True.
+    So all None values will be sorted to the end.
+    """
+    value = task_widget.task_object.priority if task_widget.task_object.priority else None
 
     return value is None, value
