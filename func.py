@@ -5,6 +5,7 @@ import datetime
 import os
 import re
 import itertools
+from typing import List
 
 
 @dataclass
@@ -21,6 +22,7 @@ class Task:
     date: datetime.datetime = datetime.datetime.now()
 
     def __post_init__(self) -> None:
+        self.raw_text_lower = self.raw_text.lower()
         # Change done to done if first char is x
         # xsomething != done
         # x something == done
@@ -31,7 +33,6 @@ class Task:
         else:
             self.description = self.raw_text
 
-        self.raw_text_lower = self.raw_text.lower()
         # Get description without words that start with '@' or '+', omit '(A)'
         self.description = re.sub(r"\B@\w+|\B\+\w+|\(\w\)", "", self.description)
 
@@ -107,7 +108,7 @@ class TaskManager:
         else:
             print("Cannot edit, task doesn't exist")
 
-    def search(self, to_match: str) -> list:
+    def search1(self, to_match: str) -> list:
         """
         Returns list of Task objects that match the search
         It's not case-sensitive
@@ -115,6 +116,16 @@ class TaskManager:
         to_match_lower = to_match.lower()
         return list(
             filter(lambda task: to_match_lower in task.raw_text_lower, self.tasks)
+        )
+
+    def search(self, to_match: str) -> list:
+        """
+        Returns list of Task objects that match the search
+        It's not case-sensitive
+        """
+        pattern = re.compile(to_match, re.IGNORECASE)
+        return list(
+            filter(lambda task: pattern.search(task.raw_text_lower), self.tasks)
         )
 
     def get_tasks_by_projects(self, tasks) -> dict:
