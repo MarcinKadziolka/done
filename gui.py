@@ -59,6 +59,8 @@ class EditTaskField(Popup):
             old_task=func.Task(self.calling_widget.text),
             new_task=func.Task(self.current_input_field.text),
         )
+
+        task_manager.write_file()
         self.calling_widget.text = self.current_input_field.text
         self.dismiss()
 
@@ -103,7 +105,7 @@ class AddTaskTextField(Popup):
 
         for task in task_manager.tasks:
             app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
-
+        task_manager.write_file()
         self.dismiss()
 
 
@@ -122,6 +124,7 @@ class DeleteIcon(IconRightWidget):
         print(f"Deleting task {self.calling_widget.text}")
         task_manager.delete_task(func.Task(self.calling_widget.text))
         self.calling_widget.parent.remove_widget(self.calling_widget)
+        task_manager.write_file()
 
 
 class TasksScrollView(ScrollView):
@@ -161,9 +164,29 @@ class SearchTextInput(MDTextField):
         for task in search_results:
             app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
 
+    # TODO: Highlight search results
+    # https://stackoverflow.com/questions/36666797/changing-color-of-a-part-of-text-of-a-kivy-widget
+    # https://kivy.org/doc/stable/api-kivy.core.text.markup.html
+
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        self.display_search_results()
+        app = MDApp.get_running_app()
+        seq = app.root.ids.mdlist.children
+
+        length = len(seq)
+        for i in range(length):
+            if self.text.lower() not in seq[i].text.lower():
+                el = seq.pop(i)
+                el.disabled = True
+                el.opacity = 0
+                seq.insert(0, el)
+            else:
+                seq[i].opacity = 1
+                seq[i].disabled = False
+    # def reverse_2(seq):
+    #     length = len(seq)
+    #     for i in range(length):
+    #         seq.insert(i, seq.pop())
 
 
 class MainApp(MDApp):
