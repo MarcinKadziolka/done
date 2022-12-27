@@ -11,17 +11,20 @@ from kivy.core.window import Window
 from kivymd.uix.list import IconRightWidget
 
 import func
+import copy
 
 
 task_manager = func.TaskManager("./file.txt")
 
 
-class TaskItem(OneLineAvatarIconListItem):
-    def __init__(self, **kwargs):
+class TaskListItem(OneLineAvatarIconListItem):
+    def __init__(self, task_object: func.Task, **kwargs):
         # Passes self to icon so it can access task text
-        super(TaskItem, self).__init__(
+        super(TaskListItem, self).__init__(
             DeleteIcon(self, icon="trash-can-outline"), **kwargs
         )
+        self.task_object = task_object
+        self.text = task_object.raw_text
 
         # Passes self to popup, so it can access task text
         self.edit_task_popup = EditTaskField(self)
@@ -31,7 +34,7 @@ class TaskItem(OneLineAvatarIconListItem):
 
 
 class EditTaskField(Popup):
-    def __init__(self, calling_widget, **kwargs):
+    def __init__(self, task_list_item, **kwargs):
         # parent_widget should be the object where popup was called from
         # because self.parent is None
         # it's required for access
@@ -40,28 +43,30 @@ class EditTaskField(Popup):
         # Hide the title
         self.title = ""
         self.separator_height = 0
-        self.calling_widget = calling_widget
+        self.task_list_item = task_list_item
         self.size_hint = (0.8, 0.1)
         self.content = MDBoxLayout(orientation="horizontal")
 
         # on_text_validate is what happens when enter is pressed
         self.current_input_field = MDTextField(
-            on_text_validate=self.accept_task_edit, text=self.calling_widget.text
+            on_text_validate=self.accept_task_edit, text=self.task_list_item.text
         )
         self.content.add_widget(self.current_input_field)
 
     def accept_task_edit(self, *args):
         print("Enter pressed")
+        old_task = self.task_list_item.task_object
+        new_task = func.Task(self.current_input_field.text)
         print(
-            f"Editing task {self.calling_widget.text} to {self.current_input_field.text}"
+            f"Editing task {old_task.raw_text} to {new_task.raw_text}"
         )
         task_manager.edit_task(
-            old_task=func.Task(self.calling_widget.text),
-            new_task=func.Task(self.current_input_field.text),
+            old_task=old_task,
+            new_task=new_task
         )
-
         task_manager.write_file()
-        self.calling_widget.text = self.current_input_field.text
+        self.task_list_item.task_object = new_task
+        self.task_list_item.text = self.current_input_field.text
         self.dismiss()
 
 
@@ -96,34 +101,32 @@ class AddTaskTextField(Popup):
 
     def on_enter(self, *args):
         print("Enter pressed")
-        task_manager.add_task(func.Task(self.input_field.text))
+        task_to_add = func.Task(self.input_field.text)
+
+        task_manager.add_task(task_to_add)
+        task_manager.write_file()
 
         app = MDApp.get_running_app()
-        app.root.ids.mdlist.clear_widgets()
-
+        app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
         self.input_field.text = ""
-
-        for task in task_manager.tasks:
-            app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
-        task_manager.write_file()
         self.dismiss()
 
 
 class DeleteIcon(IconRightWidget):
-    def __init__(self, calling_widget, **kwargs):
+    def __init__(self, task_list_item, **kwargs):
         # parent_widget should be the object where popup was called from
         # because self.parent is None
         # it's passed so this class can access text from parent
         super(DeleteIcon, self).__init__(**kwargs)
-        self.calling_widget = calling_widget
+        self.task_list_item = task_list_item
 
     def on_press(self):
         self.delete_task()
 
     def delete_task(self, *args):
-        print(f"Deleting task {self.calling_widget.text}")
-        task_manager.delete_task(func.Task(self.calling_widget.text))
-        self.calling_widget.parent.remove_widget(self.calling_widget)
+        print(f"Deleting task {self.task_list_item.text}")
+        task_manager.delete_task(self.task_list_item.task_object)
+        self.task_list_item.parent.remove_widget(self.task_list_item)
         task_manager.write_file()
 
 
@@ -156,13 +159,21 @@ class SearchTextInput(MDTextField):
             anim.start(self)  # start the animation
 
     def display_search_results(self, *args):
-        search_results = task_manager.search(self.text)
-
+        searched_text = self.text.lower()
         app = MDApp.get_running_app()
-        app.root.ids.mdlist.clear_widgets()
-
-        for task in search_results:
-            app.root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
+        task_list_items = app.root.ids.mdlist.children
+        print(f"{type(task_list_items)=}")
+        num_tasks_widgets = len(task_list_items)
+        for i in range(num_tasks_widgets):
+            tasks_text = task_list_items[i].task_object.raw_text_lower
+            if searched_text not in tasks_text:
+                item = task_list_items.pop(i)
+                task_list_items.insert(0, item)
+                item.disabled = True
+                item.opacity = 0
+            else:
+                task_list_items[i].opacity = 1
+                task_list_items[i].disabled = False
 
     # TODO: Highlight search results
     # https://stackoverflow.com/questions/36666797/changing-color-of-a-part-of-text-of-a-kivy-widget
@@ -170,23 +181,7 @@ class SearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        app = MDApp.get_running_app()
-        seq = app.root.ids.mdlist.children
-
-        length = len(seq)
-        for i in range(length):
-            if self.text.lower() not in seq[i].text.lower():
-                el = seq.pop(i)
-                el.disabled = True
-                el.opacity = 0
-                seq.insert(0, el)
-            else:
-                seq[i].opacity = 1
-                seq[i].disabled = False
-    # def reverse_2(seq):
-    #     length = len(seq)
-    #     for i in range(length):
-    #         seq.insert(i, seq.pop())
+        self.display_search_results()
 
 
 class MainApp(MDApp):
@@ -199,7 +194,7 @@ class MainApp(MDApp):
 
         root = Builder.load_file("gui.kv")
         for task in task_manager.tasks:
-            root.ids.mdlist.add_widget(TaskItem(text=task.raw_text))
+            root.ids.mdlist.add_widget(TaskListItem(task))
 
         return root
 
