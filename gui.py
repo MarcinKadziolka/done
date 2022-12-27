@@ -57,13 +57,8 @@ class EditTaskField(Popup):
         print("Enter pressed")
         old_task = self.task_list_item.task_object
         new_task = func.Task(self.current_input_field.text)
-        print(
-            f"Editing task {old_task.raw_text} to {new_task.raw_text}"
-        )
-        task_manager.edit_task(
-            old_task=old_task,
-            new_task=new_task
-        )
+        print(f"Editing task {old_task.raw_text} to {new_task.raw_text}")
+        task_manager.edit_task(old_task=old_task, new_task=new_task)
         task_manager.write_file()
         self.task_list_item.task_object = new_task
         self.task_list_item.text = self.current_input_field.text
@@ -161,19 +156,25 @@ class SearchTextInput(MDTextField):
     def display_search_results(self, *args):
         searched_text = self.text.lower()
         app = MDApp.get_running_app()
-        task_list_items = app.root.ids.mdlist.children
-        print(f"{type(task_list_items)=}")
-        num_tasks_widgets = len(task_list_items)
-        for i in range(num_tasks_widgets):
-            tasks_text = task_list_items[i].task_object.raw_text_lower
-            if searched_text not in tasks_text:
-                item = task_list_items.pop(i)
-                task_list_items.insert(0, item)
-                item.disabled = True
-                item.opacity = 0
+        task_widgets = app.root.ids.mdlist.children
+
+        searched = []
+        unsearched = []
+
+        for task_widget in task_widgets:
+            if searched_text in task_widget.text.lower():
+                task_widget.opacity = 1
+                task_widget.disabled = False
+                searched.append(task_widget)
             else:
-                task_list_items[i].opacity = 1
-                task_list_items[i].disabled = False
+                task_widget.opacity = 0
+                task_widget.disabled = True
+                unsearched.append(task_widget)
+        searched_sorted_by_priority = sorted(
+            searched, key=func.none_priority_to_end_key_for_widgets,
+            reverse=True
+        )
+        app.root.ids.mdlist.children = unsearched + searched_sorted_by_priority
 
     # TODO: Highlight search results
     # https://stackoverflow.com/questions/36666797/changing-color-of-a-part-of-text-of-a-kivy-widget
@@ -191,11 +192,9 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.primary_palette = "BlueGray"
         self.theme_cls.theme_style = "Dark"
-
         root = Builder.load_file("gui.kv")
         for task in task_manager.tasks:
             root.ids.mdlist.add_widget(TaskListItem(task))
-
         return root
 
 
