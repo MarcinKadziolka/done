@@ -11,7 +11,6 @@ from kivy.core.window import Window
 from kivymd.uix.list import IconRightWidget
 
 import func
-import copy
 
 
 task_manager = func.TaskManager("./file.txt")
@@ -65,7 +64,11 @@ class EditTaskField(Popup):
 
         app = MDApp.get_running_app()
         current_search_text = app.root.ids.search_text_input.text
-        global_display_search_results(current_search_text)
+        searched, unsearched = filter_by_search_text(
+            current_search_text, app.root.ids.mdlist.children
+        )
+        display_widget_lists(unsearched, searched)
+
         self.dismiss()
 
 
@@ -110,7 +113,10 @@ class AddTaskTextField(Popup):
         self.input_field.text = ""
 
         current_search_text = app.root.ids.search_text_input.text
-        global_display_search_results(current_search_text)
+        searched, unsearched = filter_by_search_text(
+            current_search_text, app.root.ids.mdlist.children
+        )
+        display_widget_lists(unsearched, searched)
 
         self.dismiss()
 
@@ -137,29 +143,6 @@ class TasksScrollView(ScrollView):
     pass
 
 
-def global_display_search_results(search_text):
-    search_text = search_text.lower()
-    app = MDApp.get_running_app()
-    task_widgets = app.root.ids.mdlist.children
-
-    searched = []
-    unsearched = []
-
-    for task_widget in task_widgets:
-        if search_text in task_widget.text.lower():
-            task_widget.opacity = 1
-            task_widget.disabled = False
-            searched.append(task_widget)
-        else:
-            task_widget.opacity = 0
-            task_widget.disabled = True
-            unsearched.append(task_widget)
-    searched_sorted_by_priority = sorted(
-        searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
-    )
-    app.root.ids.mdlist.children = unsearched + searched_sorted_by_priority
-
-
 class SearchTextInput(MDTextField):
     default_size_hint_x = 0.5
     default_size_hint_y = 0.07
@@ -184,35 +167,15 @@ class SearchTextInput(MDTextField):
             )
             anim.start(self)  # start the animation
 
-    def display_search_results(self, *args):
-        searched_text = self.text.lower()
-        app = MDApp.get_running_app()
-        task_widgets = app.root.ids.mdlist.children
-
-        searched = []
-        unsearched = []
-
-        for task_widget in task_widgets:
-            if searched_text in task_widget.text.lower():
-                task_widget.opacity = 1
-                task_widget.disabled = False
-                searched.append(task_widget)
-            else:
-                task_widget.opacity = 0
-                task_widget.disabled = True
-                unsearched.append(task_widget)
-        searched_sorted_by_priority = sorted(
-            searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
-        )
-        app.root.ids.mdlist.children = unsearched + searched_sorted_by_priority
-
     # TODO: Highlight search results
     # https://stackoverflow.com/questions/36666797/changing-color-of-a-part-of-text-of-a-kivy-widget
     # https://kivy.org/doc/stable/api-kivy.core.text.markup.html
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        self.display_search_results()
+        task_widgets = get_task_widgets()
+        searched, unsearched = filter_by_search_text(self.text, task_widgets)
+        display_widget_lists(unsearched, searched)
 
 
 class MainApp(MDApp):
@@ -226,6 +189,53 @@ class MainApp(MDApp):
         for task in task_manager.tasks:
             root.ids.mdlist.add_widget(TaskListItem(task))
         return root
+
+
+def filter_by_search_text(
+    search_text: str, task_widgets: list[TaskListItem]
+) -> tuple[list[TaskListItem], list[TaskListItem]]:
+    """
+    return searched_sorted_by_priority, unsearched
+    """
+    search_text = search_text.lower()
+
+    searched = []
+    unsearched = []
+
+    for task_widget in task_widgets:
+        if search_text in task_widget.text.lower():
+            task_widget.opacity = 1
+            task_widget.disabled = False
+            searched.append(task_widget)
+        else:
+            task_widget.opacity = 0
+            task_widget.disabled = True
+            unsearched.append(task_widget)
+    searched_sorted_by_priority = sorted(
+        searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
+    )
+    return searched_sorted_by_priority, unsearched
+
+
+def get_task_widgets():
+    return MDApp.get_running_app().root.ids.mdlist.children
+
+
+def display_widget_lists(*widget_lists: list):
+    """
+    Displays the widgets in the lists in the reverse order they are passed
+    Example:
+    display_widget_lists([1, 2, 3], [4, 5, 6])
+    will display 6, 5, 4, 3, 2, 1
+    """
+
+    all_widgets = []
+    for widget_list in widget_lists:
+        for widget in widget_list:
+            all_widgets.append(widget)
+
+    app = MDApp.get_running_app()
+    app.root.ids.mdlist.children = all_widgets
 
 
 if __name__ == "__main__":
