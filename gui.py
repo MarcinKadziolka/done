@@ -178,19 +178,6 @@ class SearchTextInput(MDTextField):
         display_widget_lists(unsearched, searched)
 
 
-class MainApp(MDApp):
-
-    title = "Done"
-
-    def build(self):
-        self.theme_cls.primary_palette = "BlueGray"
-        self.theme_cls.theme_style = "Dark"
-        root = Builder.load_file("gui.kv")
-        for task in task_manager.tasks:
-            root.ids.mdlist.add_widget(TaskListItem(task))
-        return root
-
-
 def filter_by_search_text(
     search_text: str, task_widgets: list[TaskListItem]
 ) -> tuple[list[TaskListItem], list[TaskListItem]]:
@@ -236,6 +223,27 @@ def display_widget_lists(*widget_lists: list):
 
     app = MDApp.get_running_app()
     app.root.ids.mdlist.children = all_widgets
+
+
+class MainApp(MDApp):
+
+    title = "Done"
+
+    def build(self):
+        self.theme_cls.primary_palette = "BlueGray"
+        self.theme_cls.theme_style = "Dark"
+        root = Builder.load_file("gui.kv")
+        for task in task_manager.tasks:
+            root.ids.mdlist.add_widget(TaskListItem(task))
+        return root
+
+    def on_start(self):
+        app = MDApp.get_running_app()
+        current_search_text = app.root.ids.search_text_input.text
+        searched, unsearched = filter_by_search_text(
+            current_search_text, app.root.ids.mdlist.children
+        )
+        display_widget_lists(unsearched, searched)
 
 
 if __name__ == "__main__":
