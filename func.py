@@ -204,13 +204,16 @@ def none_priority_to_end_key(task):
 
 def none_priority_to_end_key_for_widgets(task_widget):
     """
-    Key function for sorting tasks by priority.
+    Key function for sorting tasks by priority and then alphabetically.
     Tasks with no priority are sorted to the end.
-    Use as key a tuple, like (False, value). If value is None, then the tuple should be (True, None)
+    Use as key a tuple, like (False, value of priority, text).
+    If value is None, then the tuple should be (True, None, text)
     Tuples are compared by their first element first, then the second, et cetera.
     False sorts before True.
     So all None values will be sorted to the end.
     """
-    value = task_widget.task_object.priority if task_widget.task_object.priority else None
+    value = (
+        task_widget.task_object.priority if task_widget.task_object.priority else None
+    )
 
-    return value is None, value
+    return value is None, value, task_widget.task_object.raw_text_lower
