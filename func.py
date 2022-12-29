@@ -81,6 +81,8 @@ class TaskManager:
         # Reads every line of the file as a task
         with open(self.file_path, encoding="utf-8") as file:
             for task in file.read().splitlines():
+                if task == "":
+                    continue
                 self.tasks.append(Task(task))
 
     def write_file(self) -> None:
