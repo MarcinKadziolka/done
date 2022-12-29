@@ -1,38 +1,66 @@
-MDBoxLayout:
-    orientation: 'vertical'
-    spacing: 1
-    SearchTextInput:
-        id: search_text_input
-        mode: "round"
+Screen:
+    MDNavigationLayout:
+        ScreenManager:
+            Screen:
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: 10
+                    MDTopAppBar:
+                        title: "Done"
+                        elevation: 1
+                        pos_hint: {"top": 0}
+                        md_bg_color: "#add8e6"
+                        specific_text_color: "#4a4939"
+                        left_action_items:
+                            [['menu', lambda x: nav_drawer.set_state("open")]]                    
+                    SearchTextInput:
+                        id: search_text_input
+                        mode: "round"
+                        size_hint_y: self.default_size_hint_y
+                        size_hint_x: self.default_size_hint_x
+                        valign: 'center'
+                        halign: 'center'
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        hint_text: 'search'
+                        hint_text_color: 1,1,1,1
+                        icon_left: 'magnify'
+                        line_color: [1,1,1,1]
+                        color_normal: [1,1,1,1]
 
-        size_hint_y: self.default_size_hint_y
-        size_hint_x: self.default_size_hint_x
-        valign: 'center'
-        halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        hint_text: 'search'
-        hint_text_color: 1,1,1,1
-        icon_left: 'magnify'
-        line_color: [1,1,1,1]
-        color_normal: [1,1,1,1]
+                        font_size: .35 * self.height
+                        active_line: False
+                        multiline: False
 
-        font_size: .35 * self.height
-        active_line: False
-        multiline: False
+                    TasksScrollView:
+                        id: main
+                        MDList:
+                            id: mdlist
 
-    TasksScrollView:
-        id: main
-        MDList:
-            id: mdlist
-
-    AddTaskButton:
-        id: add_task_button
-        size_hint_x: 0.1
-        size_hint_y: 0.1
-        valign: 'center'
-        halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        icon: 'plus'
-        text: 'Add Task'
-
-
+                    AddTaskButton:
+                        id: add_task_button
+                        size_hint_x: 0.1
+                        size_hint_y: 0.1
+                        valign: 'center'
+                        halign: 'center'
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        icon: 'plus'
+                        text: 'Add Task'
+        MDNavigationDrawer:
+            id: nav_drawer
+            ContentNavigationDrawer:
+                orientation: 'vertical'
+                MDLabel:
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    font_size: '20sp'
+                    text:"Settings"
+                ScrollView:
+                    MDList:
+                        ChooseFileButton:
+                            icon: 'file-settings'
+                            theme_icon_color: "Custom"
+                            icon_color: "black"
+                            md_bg_color: "#add8e6"
+                            text: "Choose file"
+                            theme_text_color: "Custom"
+                            text_color: "black" 
