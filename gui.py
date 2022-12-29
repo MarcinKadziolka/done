@@ -1,3 +1,4 @@
+from os import wait
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.list import OneLineAvatarIconListItem
@@ -12,7 +13,7 @@ from kivymd.uix.list import IconRightWidget
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
 import func
 
 
@@ -224,6 +225,20 @@ def display_widget_lists(*widget_lists: list):
 
     app = MDApp.get_running_app()
     app.root.ids.mdlist.children = all_widgets
+
+
+class ContentNavigationDrawer(MDBoxLayout):
+    pass
+
+
+class ChooseFileButton(MDRectangleFlatIconButton):
+    def __init__(self, **kwargs):
+        super(ChooseFileButton, self).__init__(**kwargs)
+
+    def on_release(self):
+        app = MDApp.get_running_app()
+        app.root.ids.mdlist.clear_widgets()
+        app.file_manager_open()
 
 
 class MainApp(MDApp):
