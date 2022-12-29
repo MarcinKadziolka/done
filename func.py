@@ -105,16 +105,6 @@ class TaskManager:
         else:
             print("Cannot edit, task doesn't exist")
 
-    def search1(self, to_match: str) -> list:
-        """
-        Returns list of Task objects that match the search
-        It's not case-sensitive
-        """
-        to_match_lower = to_match.lower()
-        return list(
-            filter(lambda task: to_match_lower in task.raw_text_lower, self.tasks)
-        )
-
     def search(self, to_match: str) -> list:
         """
         Returns list of Task objects that match the search
@@ -217,3 +207,17 @@ def none_priority_to_end_key_for_widgets(task_widget):
     )
 
     return value is None, value, task_widget.task_object.raw_text_lower
+
+
+def read_settings():
+    try:
+        with open("settings", encoding="utf-8", mode="r") as file:
+            path_read = file.read()
+    except FileNotFoundError:
+        path_read = None
+    return path_read
+
+
+def save_settings(path: str):
+    with open("settings", encoding="utf-8", mode="w") as file:
+        file.write(path)
