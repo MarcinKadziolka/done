@@ -9,11 +9,11 @@ from kivy.uix.popup import Popup
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.core.window import Window
 from kivymd.uix.list import IconRightWidget
-
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.toast import toast
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
 import func
-
-
-task_manager = func.TaskManager("./file.txt")
 
 
 class TaskListItem(OneLineAvatarIconListItem):
@@ -53,16 +53,16 @@ class EditTaskField(Popup):
         self.content.add_widget(self.current_input_field)
 
     def accept_task_edit(self, *args):
+        app = MDApp.get_running_app()
         print("Enter pressed")
         old_task = self.task_list_item.task_object
         new_task = func.Task(self.current_input_field.text)
         print(f"Editing task {old_task.raw_text} to {new_task.raw_text}")
-        task_manager.edit_task(old_task=old_task, new_task=new_task)
-        task_manager.write_file()
+        app.task_manager.edit_task(old_task=old_task, new_task=new_task)
+        app.task_manager.write_file()
         self.task_list_item.task_object = new_task
         self.task_list_item.text = self.current_input_field.text
 
-        app = MDApp.get_running_app()
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(
             current_search_text, app.root.ids.mdlist.children
@@ -102,13 +102,13 @@ class AddTaskTextField(Popup):
         self.content.add_widget(self.input_field)
 
     def on_enter(self, *args):
+        app = MDApp.get_running_app()
         print("Enter pressed")
         task_to_add = func.Task(self.input_field.text)
 
-        task_manager.add_task(task_to_add)
-        task_manager.write_file()
+        app.task_manager.add_task(task_to_add)
+        app.task_manager.write_file()
 
-        app = MDApp.get_running_app()
         app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
         self.input_field.text = ""
 
@@ -133,10 +133,11 @@ class DeleteIcon(IconRightWidget):
         self.delete_task()
 
     def delete_task(self, *args):
+        app = MDApp.get_running_app()
         print(f"Deleting task {self.task_list_item.text}")
-        task_manager.delete_task(self.task_list_item.task_object)
+        app.task_manager.delete_task(self.task_list_item.task_object)
         self.task_list_item.parent.remove_widget(self.task_list_item)
-        task_manager.write_file()
+        app.task_manager.write_file()
 
 
 class TasksScrollView(ScrollView):
@@ -226,26 +227,66 @@ def display_widget_lists(*widget_lists: list):
 
 
 class MainApp(MDApp):
-
-    title = "Done"
+    def __init__(self, **kwargs):
+        super(MainApp, self).__init__(**kwargs)
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "BlueGray"
+        self.title = "Done"
+        self.task_manager = None
+        self.manager_open = False
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path,
+            ext=[".txt"],
+        )
+        self.dialog = MDDialog(
+            text="Select .txt file",
+            buttons=[MDFlatButton(text="OK", on_release=self.close_dialog)],
+        )
 
     def build(self):
-        self.theme_cls.primary_palette = "BlueGray"
-        self.theme_cls.theme_style = "Dark"
         root = Builder.load_file("gui.kv")
-        for task in task_manager.tasks:
-            root.ids.mdlist.add_widget(TaskListItem(task))
         return root
 
     def on_start(self):
+        self.dialog.open()
+
+    def close_dialog(self, *_):
+        self.dialog.dismiss()
+        self.file_manager_open()
+
+    def file_manager_open(self):
+        self.file_manager.show(
+            self.file_manager.current_path
+        )  # output manager to the screen
+        self.manager_open = True
+
+    def select_path(self, path):
+        """It will be called when you click on the file name
+        or the catalog selection button.
+
+        :type path: str;
+        :param path: path to the selected directory or file;
+        """
+        self.exit_manager()
+        self.task_manager = func.TaskManager(path)
+        toast(path)
+
         app = MDApp.get_running_app()
+        for task in self.task_manager.tasks:
+            app.root.ids.mdlist.add_widget(TaskListItem(task))
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(
             current_search_text, app.root.ids.mdlist.children
         )
         display_widget_lists(unsearched, searched)
 
+    def exit_manager(self, *args):
+        """Called when the user reaches the root of the directory tree."""
+
+        self.manager_open = False
+        self.file_manager.close()
+
 
 if __name__ == "__main__":
     MainApp().run()
-    task_manager.write_file()
