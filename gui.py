@@ -232,6 +232,7 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "BlueGray"
         self.title = "Done"
+        self.path = None
         self.task_manager = None
         self.manager_open = False
         self.file_manager = MDFileManager(
@@ -249,7 +250,21 @@ class MainApp(MDApp):
         return root
 
     def on_start(self):
-        self.dialog.open()
+        path = func.read_settings()
+        if path:
+            self.task_manager = func.TaskManager(path)
+
+            app = MDApp.get_running_app()
+            for task in self.task_manager.tasks:
+                app.root.ids.mdlist.add_widget(TaskListItem(task))
+
+            current_search_text = app.root.ids.search_text_input.text
+            searched, unsearched = filter_by_search_text(
+                current_search_text, app.root.ids.mdlist.children
+            )
+            display_widget_lists(unsearched, searched)
+        else:
+            self.dialog.open()
 
     def close_dialog(self, *_):
         self.dialog.dismiss()
@@ -270,6 +285,7 @@ class MainApp(MDApp):
         """
         self.exit_manager()
         self.task_manager = func.TaskManager(path)
+        func.save_settings(path)
         toast(path)
 
         app = MDApp.get_running_app()
