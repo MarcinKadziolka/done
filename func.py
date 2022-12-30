@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import json
 import datetime
 import os
 import re
@@ -79,11 +80,14 @@ class TaskManager:
 
     def read_file(self):
         # Reads every line of the file as a task
-        with open(self.file_path, encoding="utf-8") as file:
-            for task in file.read().splitlines():
-                if task == "":
-                    continue
-                self.tasks.append(Task(task))
+        try:
+            with open(self.file_path, encoding="utf-8") as file:
+                for task in file.read().splitlines():
+                    if task == "":
+                        continue
+                    self.tasks.append(Task(task))
+        except FileNotFoundError as err:
+            print(err)
 
     def write_file(self) -> None:
         # Writes every task as separate line to the file
@@ -211,15 +215,18 @@ def none_priority_to_end_key_for_widgets(task_widget):
     return value is None, value, task_widget.task_object.raw_text_lower
 
 
+def save_settings(path=None, theme=None):
+    with open("settings.txt", "r") as f:
+        settings = json.load(f)
+    if path is not None:
+        settings["path"] = path
+    if theme is not None:
+        settings["theme"] = theme
+    with open("settings.txt", "w") as f:
+        json.dump(settings, f)
+
+
 def read_settings():
-    try:
-        with open("settings", encoding="utf-8", mode="r") as file:
-            path_read = file.read()
-    except FileNotFoundError:
-        path_read = None
-    return path_read
-
-
-def save_settings(path: str):
-    with open("settings", encoding="utf-8", mode="w") as file:
-        file.write(path)
+    with open("settings.txt", "r") as f:
+        settings = json.load(f)
+    return settings
