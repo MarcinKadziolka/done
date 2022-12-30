@@ -13,13 +13,7 @@ from kivymd.uix.list import IconRightWidget
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import (
-    MDFlatButton,
-    MDFloatingActionButtonSpeedDial,
-    MDIconButton,
-    MDRectangleFlatIconButton,
-    MDRoundFlatIconButton,
-)
+from kivymd.uix.button import MDFlatButton, MDIconButton, MDRectangleFlatIconButton
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 import func
 
@@ -159,43 +153,34 @@ class TasksScrollView(ScrollView):
     pass
 
 
-class SearchTextInput(MDTextField):
+class DarkSearchTextInput(MDTextField):
     def __init__(self, **kwargs):
-        super(SearchTextInput, self).__init__(**kwargs)
+        super(DarkSearchTextInput, self).__init__(**kwargs)
+        self.mode = "round"
+
         self.default_size_hint_x = 0.5
         self.default_size_hint_y = 0.07
-        # Make fill color Custom
-        app = MDApp.get_running_app()
-        # Get app theme
-        self.app_theme = app.theme_cls.theme_style
 
-        self.mode = "round"
         self.size_hint_y = self.default_size_hint_y
         self.size_hint_x = self.default_size_hint_x
+
         self.valign = "center"
         self.pos_hint = {"center_x": 0.5, "center_y": 0.5}
+
         self.hint_text = "search"
         self.font_size = 1.35 * self.height
         self.active_line = False
         self.multiline = False
         self.icon_left = "magnify"
 
-        if self.app_theme == "Dark":
-            self.hint_text_color_normal = 1, 1, 1, 1
-            self.hint_text_color_focus = 1, 1, 1, 1
-            self.icon_left_color_normal = 1, 1, 1, 1
-            self.icon_left_color_focus = 1, 1, 1, 1
-            self.text_color_normal = [1, 1, 1, 1]
-            self.text_color_focus = [1, 1, 1, 1]
-            self.fill_color_normal = "#000000"
-        else:
-            self.hint_text_color_normal = 0, 0, 0, 1
-            self.hint_text_color_focus = 0, 0, 0, 1
-            self.icon_left_color_normal = 0, 0, 0, 1
-            self.icon_left_color_focus = 0, 0, 0, 1
-            self.text_color_normal = [0, 0, 0, 1]
-            self.text_color_focus = [0, 0, 0, 1]
-            self.fill_color_normal = "#F5F5DC"
+        # Dark theme
+        self.fill_color_normal = "#000000"
+        self.hint_text_color_normal = 1, 1, 1, 1
+        self.hint_text_color_focus = 1, 1, 1, 1
+        self.icon_left_color_normal = 1, 1, 1, 1
+        self.icon_left_color_focus = 1, 1, 1, 1
+        self.text_color_normal = [1, 1, 1, 1]
+        self.text_color_focus = [1, 1, 1, 1]
 
     def on_focus(self, *args):
         duration = 0.05
@@ -223,12 +208,21 @@ class SearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        print(f"{self.fill_color_normal=}")
-        self.fill_color_normal = "#FFFFFF"
-        print(f"{self.fill_color_normal=}")
         task_widgets = get_task_widgets()
         searched, unsearched = filter_by_search_text(self.text, task_widgets)
         display_widget_lists(unsearched, searched)
+
+
+class LightSearchTextInput(DarkSearchTextInput):
+    def __init__(self, **kwargs):
+        super(LightSearchTextInput, self).__init__(**kwargs)
+        self.hint_text_color_normal = 0, 0, 0, 1
+        self.hint_text_color_focus = 0, 0, 0, 1
+        self.icon_left_color_normal = 0, 0, 0, 1
+        self.icon_left_color_focus = 0, 0, 0, 1
+        self.text_color_normal = [0, 0, 0, 1]
+        self.text_color_focus = [0, 0, 0, 1]
+        self.fill_color_normal = "#F5F5DC"
 
 
 def filter_by_search_text(
@@ -288,40 +282,53 @@ class MyToggleButton(MDRectangleFlatIconButton, MDToggleButton):
 
     def on_state(self, *_):
         app = MDApp.get_running_app()
-        task_widgets = get_task_widgets()
         if app.root.ids.toggledark.state == "down":
-            # Setting dark theme
-            app.theme_cls.theme_style = "Dark"
-            app.root.ids.settingslabel.text_color = "white"
-            for task in task_widgets:
-                task.text_color = "white"
-                task.children[0].children[0].icon_color = "white"
-
-            app.root.ids.add_task_button.line_color = "#add8e6"
-            # Creating a new search field with the light_theme
-            # and adding it to widget tree
-            dark_search_field = SearchTextInput()
-            search_field_to_delete = app.root.ids.search_text_input
-            app.root.ids.mainbox.remove_widget(search_field_to_delete)
-            app.root.ids["search_text_input"] = dark_search_field
-            app.root.ids.mainbox.add_widget(dark_search_field, 2)
-
+            set_dark_theme()
         elif app.root.ids.togglelight.state == "down":
-            # Setting light theme
-            app.theme_cls.theme_style = "Light"
-            app.root.ids.settingslabel.text_color = "black"
-            for task in task_widgets:
-                task.text_color = "black"
-                task.children[0].children[0].icon_color = "black"
+            set_light_theme()
 
-            app.root.ids.add_task_button.line_color = "black"
-            # Creating a new search field with the light_theme
-            # and adding it to widget tree
-            light_search_field = SearchTextInput()
-            search_field_to_delete = app.root.ids.search_text_input
-            app.root.ids.mainbox.remove_widget(search_field_to_delete)
-            app.root.ids["search_text_input"] = light_search_field
-            app.root.ids.mainbox.add_widget(light_search_field, 2)
+
+def set_dark_theme():
+    app = MDApp.get_running_app()
+    task_widgets = get_task_widgets()
+    # Setting dark theme
+    app.theme_cls.theme_style = "Dark"
+    app.root.ids.settingslabel.text_color = "white"
+    for task in task_widgets:
+        task.text_color = "white"
+        task.children[0].children[0].icon_color = "white"
+
+    app.root.ids.add_task_button.line_color = "#add8e6"
+    # Creating a new search field with the light_theme
+    # and adding it to widget tree
+    dark_search_field = DarkSearchTextInput()
+    search_field_to_delete = app.root.ids.search_text_input
+    app.root.ids.mainbox.remove_widget(search_field_to_delete)
+    app.root.ids["search_text_input"] = dark_search_field
+    app.root.ids.mainbox.add_widget(dark_search_field, 2)
+    func.save_settings(theme=app.theme_cls.theme_style)
+
+
+def set_light_theme():
+    app = MDApp.get_running_app()
+    task_widgets = get_task_widgets()
+    # Setting light theme
+    app.theme_cls.theme_style = "Light"
+    app.root.ids.settingslabel.text_color = "black"
+    for task in task_widgets:
+        task.text_color = "black"
+        task.children[0].children[0].icon_color = "black"
+
+    app.root.ids.add_task_button.line_color = "black"
+    # Creating a new search field with the light_theme
+    # and adding it to widget tree
+    light_search_field = LightSearchTextInput()
+    search_field_to_delete = app.root.ids.search_text_input
+    app.root.ids.mainbox.remove_widget(search_field_to_delete)
+    app.root.ids["search_text_input"] = light_search_field
+    app.root.ids.mainbox.add_widget(light_search_field, 2)
+
+    func.save_settings(theme=app.theme_cls.theme_style)
 
 
 class ContentNavigationDrawer(MDBoxLayout):
@@ -362,25 +369,30 @@ class MainApp(MDApp):
         return root
 
     def on_start(self):
-        path = func.read_settings()
+        settings = func.read_settings()
 
         app = MDApp.get_running_app()
-        search_widget = SearchTextInput()
-        app.root.ids["search_text_input"] = search_widget
 
+        search_widget = DarkSearchTextInput()
+        app.root.ids["search_text_input"] = search_widget
         app.root.ids.mainbox.add_widget(search_widget, 2)
 
-        if path:
-            self.task_manager = func.TaskManager(path)
-
+        if settings:
+            self.task_manager = func.TaskManager(settings["path"])
             for task in self.task_manager.tasks:
                 app.root.ids.mdlist.add_widget(TaskListItem(task))
+
+            if settings["theme"] == "Dark":
+                set_dark_theme()
+            else:
+                set_light_theme()
 
             current_search_text = app.root.ids.search_text_input.text
             searched, unsearched = filter_by_search_text(
                 current_search_text, app.root.ids.mdlist.children
             )
             display_widget_lists(unsearched, searched)
+
         else:
             self.dialog.open()
 
@@ -403,7 +415,7 @@ class MainApp(MDApp):
         """
         self.exit_manager()
         self.task_manager = func.TaskManager(path)
-        func.save_settings(path)
+        func.save_settings(path=path)
         toast(path)
 
         app = MDApp.get_running_app()
