@@ -15,6 +15,8 @@ from kivymd.toast import toast
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import (
     MDFlatButton,
+    MDFloatingActionButtonSpeedDial,
+    MDIconButton,
     MDRectangleFlatIconButton,
     MDRoundFlatIconButton,
 )
@@ -80,14 +82,17 @@ class EditTaskField(Popup):
         self.dismiss()
 
 
-class AddTaskButton(Button):
+class AddTaskButton(MDIconButton):
     """
     Button class that has hidden popup with text field which is shown when button is released
     """
 
     def __init__(self, **kwargs):
         super(AddTaskButton, self).__init__(**kwargs)
-
+        self.md_bg_color = "#add8e6"
+        self.line_width: 1
+        self.theme_icon_color = "Custom"
+        self.icon_size = "48sp"
         self.task_input_popup = AddTaskTextField()
 
     def on_release(self):
@@ -292,6 +297,7 @@ class MyToggleButton(MDRectangleFlatIconButton, MDToggleButton):
                 task.text_color = "white"
                 task.children[0].children[0].icon_color = "white"
 
+            app.root.ids.add_task_button.line_color = "#add8e6"
             # Creating a new search field with the light_theme
             # and adding it to widget tree
             dark_search_field = SearchTextInput()
@@ -308,6 +314,7 @@ class MyToggleButton(MDRectangleFlatIconButton, MDToggleButton):
                 task.text_color = "black"
                 task.children[0].children[0].icon_color = "black"
 
+            app.root.ids.add_task_button.line_color = "black"
             # Creating a new search field with the light_theme
             # and adding it to widget tree
             light_search_field = SearchTextInput()
