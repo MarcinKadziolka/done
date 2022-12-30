@@ -13,7 +13,12 @@ from kivymd.uix.list import IconRightWidget
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
+from kivymd.uix.button import (
+    MDFlatButton,
+    MDRectangleFlatIconButton,
+    MDRoundFlatIconButton,
+)
+from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 import func
 
 
@@ -26,6 +31,8 @@ class TaskListItem(OneLineAvatarIconListItem):
         self.task_object = task_object
         self.text = task_object.raw_text
 
+        self.theme_text_color = "Custom"
+        self.text_color = "white"
         # Passes self to popup, so it can access task text
         self.edit_task_popup = EditTaskField(self)
 
@@ -129,6 +136,8 @@ class DeleteIcon(IconRightWidget):
         # it's passed so this class can access text from parent
         super(DeleteIcon, self).__init__(**kwargs)
         self.task_list_item = task_list_item
+        self.theme_icon_color = "Custom"
+        self.icon_color = "white"
 
     def on_press(self):
         self.delete_task()
@@ -146,8 +155,17 @@ class TasksScrollView(ScrollView):
 
 
 class SearchTextInput(MDTextField):
-    default_size_hint_x = 0.5
-    default_size_hint_y = 0.07
+    def __init__(self, **kwargs):
+        super(SearchTextInput, self).__init__(**kwargs)
+        self.default_size_hint_x = 0.5
+        self.default_size_hint_y = 0.07
+        # Make fill color Custom
+
+        app = MDApp.get_running_app()
+        # Get app theme
+        self.apps_theme = app.theme_cls.theme_style
+        print(f"{self.apps_theme=}")
+        self.fill_color_normal = "#F5F5DC"
 
     def on_focus(self, *args):
         duration = 0.05
@@ -175,6 +193,9 @@ class SearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
+        print(f"{self.fill_color_normal=}")
+        self.fill_color_normal = "#FFFFFF"
+        print(f"{self.fill_color_normal=}")
         task_widgets = get_task_widgets()
         searched, unsearched = filter_by_search_text(self.text, task_widgets)
         display_widget_lists(unsearched, searched)
@@ -225,6 +246,32 @@ def display_widget_lists(*widget_lists: list):
 
     app = MDApp.get_running_app()
     app.root.ids.mdlist.children = all_widgets
+
+
+# Navbar content below
+
+
+class MyToggleButton(MDRectangleFlatIconButton, MDToggleButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.background_down = self.theme_cls.primary_color
+
+    def on_state(self, *_):
+        app = MDApp.get_running_app()
+        task_widgets = get_task_widgets()
+        if app.root.ids.toggledark.state == "down":
+            app.theme_cls.theme_style = "Dark"
+            app.root.ids.settingslabel.text_color = "white"
+            for task in task_widgets:
+                task.text_color = "white"
+                task.children[0].children[0].icon_color = "white"
+            print(f"{app.root.ids.search_text_input.fill_color_normal=}")
+        elif app.root.ids.togglelight.state == "down":
+            app.theme_cls.theme_style = "Light"
+            app.root.ids.settingslabel.text_color = "black"
+            for task in task_widgets:
+                task.text_color = "black"
+                task.children[0].children[0].icon_color = "black"
 
 
 class ContentNavigationDrawer(MDBoxLayout):
