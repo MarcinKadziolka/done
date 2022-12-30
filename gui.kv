@@ -3,6 +3,7 @@ Screen:
         ScreenManager:
             Screen:
                 MDBoxLayout:
+                    id: mainbox
                     orientation: 'vertical'
                     spacing: 10
                     MDTopAppBar:
@@ -13,30 +14,10 @@ Screen:
                         specific_text_color: "#4a4939"
                         left_action_items:
                             [['menu', lambda x: nav_drawer.set_state("open")]]                    
-                    SearchTextInput:
-                        id: search_text_input
-                        mode: "round"
-                        size_hint_y: self.default_size_hint_y
-                        size_hint_x: self.default_size_hint_x
-                        valign: 'center'
-                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                        hint_text: 'search'
-                        hint_text_color_normal: 0,0,0,1
-                        hint_text_color_focus: 0,0,0,1
-                        icon_left: 'magnify'
-                        icon_left_color_normal: 0,0,0,1
-                        icon_left_color_focus: 0,0,0,1
-                        text_color_normal: [0,0,0,1]
-                        text_color_focus: [0,0,0,1]
-                        font_size: .35 * self.height
-                        active_line: False
-                        multiline: False
-
                     TasksScrollView:
                         id: main
                         MDList:
                             id: mdlist
-
                     AddTaskButton:
                         id: add_task_button
                         size_hint_x: 0.1
