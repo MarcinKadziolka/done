@@ -19,14 +19,15 @@ Screen:
                         size_hint_y: self.default_size_hint_y
                         size_hint_x: self.default_size_hint_x
                         valign: 'center'
-                        halign: 'center'
                         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                         hint_text: 'search'
-                        hint_text_color: 1,1,1,1
+                        hint_text_color_normal: 0,0,0,1
+                        hint_text_color_focus: 0,0,0,1
                         icon_left: 'magnify'
-                        line_color: [1,1,1,1]
-                        color_normal: [1,1,1,1]
-
+                        icon_left_color_normal: 0,0,0,1
+                        icon_left_color_focus: 0,0,0,1
+                        text_color_normal: [0,0,0,1]
+                        text_color_focus: [0,0,0,1]
                         font_size: .35 * self.height
                         active_line: False
                         multiline: False
@@ -50,10 +51,30 @@ Screen:
             ContentNavigationDrawer:
                 orientation: 'vertical'
                 MDLabel:
+                    id: settingslabel
                     size_hint_y: None
                     height: self.texture_size[1]
                     font_size: '20sp'
                     text:"Settings"
+                    theme_text_color: "Custom"
+                    text_color: "white"
+                MDBoxLayout:
+                    id: toggles
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    size: toggledark.size
+                    MyToggleButton:
+                        id: toggledark
+                        icon: 'weather-night'
+                        size_hint_e: None
+                        text: "Dark theme"
+                        group: 'theme'
+                    MyToggleButton:
+                        id: togglelight
+                        icon: 'weather-sunny'
+                        size_hint_y: None
+                        text: "Light theme"
+                        group: 'theme'
                 ScrollView:
                     MDList:
                         ChooseFileButton:
@@ -63,4 +84,4 @@ Screen:
                             md_bg_color: "#add8e6"
                             text: "Choose file"
                             theme_text_color: "Custom"
-                            text_color: "black" 
+                            text_color: "black"
