@@ -1,9 +1,12 @@
 # from kivy.config import Config
 #
 # Config.set("graphics", "resizable", False)
+from os import unsetenv, wait
+from re import search
 from kivy.lang import Builder
 from kivymd.app import MDApp
-from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list import OneLineAvatarIconListItem, OneLineListItem
 from kivymd.uix.list.list import MDCheckbox
 from kivymd.uix.textfield import MDTextField
 from kivy.animation import Animation
@@ -18,6 +21,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDIconButton, MDRectangleFlatIconButton
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 from kivymd.uix.selectioncontrol import MDCheckbox
+import itertools
 import func
 
 
@@ -61,10 +65,9 @@ class MyCheckBox(MDCheckbox):
 
         app.task_manager.save_tasks()
 
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
         current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(
-            current_search_text, app.root.ids.mdlist.children
-        )
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
 
@@ -135,17 +138,12 @@ class EditTaskField(Popup):
         elif new_task.done is False:
             self.task_list_item.children[1].children[0].children[0].state = "normal"
 
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
         current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(
-            current_search_text, app.root.ids.mdlist.children
-        )
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
         self.dismiss()
-
-
-class Tags(MDFlatButton):
-    pass
 
 
 class AddTaskButton(MDIconButton):
@@ -192,9 +190,8 @@ class AddTaskTextField(Popup):
         self.input_field.text = ""
 
         current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(
-            current_search_text, app.root.ids.mdlist.children
-        )
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
         self.dismiss()
@@ -226,19 +223,94 @@ class DeleteIcon(IconRightWidget):
         app.task_manager.save_tasks()
 
 
+class TagsItem(OneLineListItem):
+    def __init__(self, tags, *args, **kwargs):
+        super(TagsItem, self).__init__(*args, **kwargs)
+        self.text = str(*tags)
+
+
+def get_tags_projects(all_widgets):
+    return [widget for widget in all_widgets if isinstance(widget, TagsItem)]
+
+
 class TasksScrollView(ScrollView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def sort_by_priority(self):
         app = MDApp.get_running_app()
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        tags_items = get_tags_projects(app.root.ids.mdlist.children)
+        # for tag_item in tags_items:
+        #     tag_item.opacity = 0
         current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(
-            current_search_text, app.root.ids.mdlist.children
-        )
-        display_widget_lists(unsearched, searched)
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
+        display_widget_lists(tags_items, unsearched, searched)
 
     def sort_by_tags(self):
+        app = MDApp.get_running_app()
+        all_widgets = get_all_widgets()
+        """
+        Returns dict with tags as keys and tasks as values
+        Tags are sorted alphabetically
+        Tasks under current tags are sorted by priority (A -> B -> ... -> None)
+        """
+        # Get all sorted lists of tags
+        all_tags = [
+            sorted(widget.task_object.tags)
+            for widget in all_widgets
+            if isinstance(widget, TaskListItem)
+        ]
+        # Sort the list of lists
+        all_tags.sort()
+        # Get all unique lists of tags
+        all_tags = list(all_tags for all_tags, _ in itertools.groupby(all_tags))
+
+        print(all_tags)
+
+        tasks_by_tags = {}
+
+        for tags in all_tags:
+            tasks_widgets_with_current_tags = []
+            app.root.ids.mdlist.add_widget(TagsItem(tags))
+            for widget in all_widgets:
+                if isinstance(widget, TaskListItem):
+                    # Checking if lists contain the same elements
+                    if set(tags) == set(widget.task_object.tags):
+                        tasks_widgets_with_current_tags.append(widget)
+                else:
+                    if widget.text == str(*tags):
+                        tasks_widgets_with_current_tags.append(widget)
+            # Sorting tasks by priority (A -> B -> ... -> None)
+            # tasks_current_tags_sort_priority = sorted(
+            #     tasks_with_current_tags, key=none_priority_to_end_key
+            # )
+            # Key is a tuple of tags, value is a list of tasks
+            tasks_by_tags[tuple(tags)] = tasks_widgets_with_current_tags
+
+        # current_search_text = app.root.ids.search_text_input.text
+        # searched, unsearched = filter_by_search_text(
+        #     current_search_text, app.root.ids.mdlist.children
+        # )
+        custom_list = []
+        for tags, widgets in tasks_by_tags.items():
+            custom_list.append(widgets)
+        print(f"{custom_list=}")
+        print(f"{len(custom_list)=}")
+        # widget_lists = [unsearched, searched]
+        # print(f"{searched=}")
+        # print(f"{len(searched)=}")
+        # print(f"{unsearched=}")
+        # print(f"{len(unsearched)=}")
+
+        all_widgets_to_display = []
+        for widget_list in custom_list:
+            for widget in widget_list:
+                all_widgets_to_display.append(widget)
+
+        app = MDApp.get_running_app()
+        app.root.ids.mdlist.children = all_widgets_to_display
+
         print("Sort by tags")
 
     def sort_by_projects(self):
@@ -300,7 +372,9 @@ class DarkSearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        task_widgets = get_task_widgets()
+        app = MDApp.get_running_app()
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+
         searched, unsearched = filter_by_search_text(self.text, task_widgets)
         display_widget_lists(unsearched, searched)
 
@@ -343,7 +417,7 @@ def filter_by_search_text(
     return searched_sorted_by_priority, unsearched
 
 
-def get_task_widgets():
+def get_all_widgets():
     return MDApp.get_running_app().root.ids.mdlist.children
 
 
@@ -380,9 +454,14 @@ class MyToggleButton(MDRectangleFlatIconButton, MDToggleButton):
             set_light_theme()
 
 
+def get_task_widgets(all_widgets):
+    return [widget for widget in all_widgets if isinstance(widget, TaskListItem)]
+
+
 def set_dark_theme():
     app = MDApp.get_running_app()
-    task_widgets = get_task_widgets()
+    task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+
     # Setting dark theme
     app.theme_cls.theme_style = "Dark"
     app.root.ids.settingslabel.text_color = "white"
@@ -409,7 +488,8 @@ def set_dark_theme():
 
 def set_light_theme():
     app = MDApp.get_running_app()
-    task_widgets = get_task_widgets()
+    task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+
     # Setting light theme
     app.theme_cls.theme_style = "Light"
     app.root.ids.settingslabel.text_color = "black"
@@ -489,9 +569,10 @@ class MainApp(MDApp):
             else:
                 set_light_theme()
 
+            task_widgets = get_task_widgets(app.root.ids.mdlist.children)
             current_search_text = app.root.ids.search_text_input.text
             searched, unsearched = filter_by_search_text(
-                current_search_text, app.root.ids.mdlist.children
+                current_search_text, task_widgets
             )
             display_widget_lists(unsearched, searched)
 
@@ -524,9 +605,8 @@ class MainApp(MDApp):
         for task in self.task_manager.tasks:
             app.root.ids.mdlist.add_widget(TaskListItem(task))
         current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(
-            current_search_text, app.root.ids.mdlist.children
-        )
+        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
     def exit_manager(self, *args):
