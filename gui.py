@@ -1,4 +1,6 @@
-from os import wait
+# from kivy.config import Config
+#
+# Config.set("graphics", "resizable", False)
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.list import OneLineAvatarIconListItem
@@ -102,7 +104,7 @@ class EditTaskField(Popup):
         # because self.parent is None
         # it's required for access
         super(EditTaskField, self).__init__(**kwargs)
-        Window.borderless = True
+        # Window.borderless = True
         # Hide the title
         self.title = ""
         self.separator_height = 0
@@ -142,6 +144,10 @@ class EditTaskField(Popup):
         self.dismiss()
 
 
+class Tags(MDFlatButton):
+    pass
+
+
 class AddTaskButton(MDIconButton):
     """
     Button class that has hidden popup with text field which is shown when button is released
@@ -162,7 +168,7 @@ class AddTaskButton(MDIconButton):
 class AddTaskTextField(Popup):
     def __init__(self, **kwargs):
         super(AddTaskTextField, self).__init__(**kwargs)
-        Window.borderless = True
+        # Window.borderless = True
         # Hide the title
         self.title = ""
         self.separator_height = 0
@@ -221,7 +227,22 @@ class DeleteIcon(IconRightWidget):
 
 
 class TasksScrollView(ScrollView):
-    pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def sort_by_priority(self):
+        app = MDApp.get_running_app()
+        current_search_text = app.root.ids.search_text_input.text
+        searched, unsearched = filter_by_search_text(
+            current_search_text, app.root.ids.mdlist.children
+        )
+        display_widget_lists(unsearched, searched)
+
+    def sort_by_tags(self):
+        print("Sort by tags")
+
+    def sort_by_projects(self):
+        print("Sort by projects")
 
 
 class DarkSearchTextInput(MDTextField):
@@ -230,7 +251,7 @@ class DarkSearchTextInput(MDTextField):
         self.mode = "round"
 
         self.default_size_hint_x = 0.5
-        self.default_size_hint_y = 0.07
+        self.default_size_hint_y = 0.08
 
         self.size_hint_y = self.default_size_hint_y
         self.size_hint_x = self.default_size_hint_x
@@ -239,7 +260,7 @@ class DarkSearchTextInput(MDTextField):
         self.pos_hint = {"center_x": 0.5, "center_y": 0.5}
 
         self.hint_text = "search"
-        self.font_size = 1.35 * self.height
+        self.font_size = 300.35 * self.size_hint_y
         self.active_line = False
         self.multiline = False
         self.icon_left = "magnify"
