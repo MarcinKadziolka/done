@@ -217,9 +217,9 @@ def none_priority_to_end_key_for_widgets(task_widget):
     )
 
     return (
+        task_widget.task_object.done,
         value is None,
         value,
-        task_widget.task_object.done,
         task_widget.task_object.raw_text_lower
     )
 
