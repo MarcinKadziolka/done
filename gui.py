@@ -2,37 +2,93 @@ from os import wait
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.uix.list.list import MDCheckbox
 from kivymd.uix.textfield import MDTextField
 from kivy.animation import Animation
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.core.window import Window
-from kivymd.uix.list import IconRightWidget
+from kivymd.uix.list import IconRightWidget, IconLeftWidget
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDIconButton, MDRectangleFlatIconButton
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
+from kivymd.uix.selectioncontrol import MDCheckbox
 import func
+
+
+class MyCheckBox(MDCheckbox):
+    def __init__(self, task_list_item, **kwargs):
+        super().__init__(**kwargs)
+        self.md_bg_color = [1, 1, 1, 0]
+        self.theme_text_color = "Custom"
+        self.color_active = "#add8e6"
+        self.color_inactive = "black"
+        self.checkbox_icon_normal = "checkbox-blank-outline"
+        self.checkbox_icon_down = "checkbox-marked"
+        self.task_list_item = task_list_item
+        print(f"{self.task_list_item=}")
+        if self.task_list_item.task_object.done is True:
+            self.state = "down"
+        else:
+            self.state = "normal"
+
+    def on_active(self, instance, value):
+        app = MDApp.get_running_app()
+        print(f"{self.state=}")
+        current_task = self.task_list_item.task_object
+        print(f"{current_task=}")
+        print()
+        if self.state == "down" and current_task.done is False:
+            new_task = func.Task("x " + current_task.raw_text)
+            app.task_manager.edit_task(old_task=current_task, new_task=new_task)
+            self.task_list_item.task_object = new_task
+            self.task_list_item.text = new_task.raw_text
+            print(f"{self.task_list_item.text=}")
+        elif self.state == "normal" and current_task.done is True:
+            old_task = self.task_list_item.task_object
+            new_task = func.Task(old_task.raw_text[2:])
+            app.task_manager.edit_task(old_task=current_task, new_task=new_task)
+            self.task_list_item.task_object = new_task
+            self.task_list_item.text = new_task.raw_text
+            print(f"{self.task_list_item.text=}")
+
+        print(f"{self.task_list_item.task_object=}")
+
+        app.task_manager.save_tasks()
+
+        current_search_text = app.root.ids.search_text_input.text
+        searched, unsearched = filter_by_search_text(
+            current_search_text, app.root.ids.mdlist.children
+        )
+        display_widget_lists(unsearched, searched)
+
+
+class DoneLeftIcon(IconLeftWidget):
+    def __init__(self, task_list_item, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.icon = "transparent.png"
+        self.done_check_box = MyCheckBox(task_list_item)
+        self.add_widget(self.done_check_box)
 
 
 class TaskListItem(OneLineAvatarIconListItem):
     def __init__(self, task_object: func.Task, **kwargs):
         # Passes self to icon so it can access task text
-        super(TaskListItem, self).__init__(
-            DeleteIcon(self, icon="trash-can-outline"), **kwargs
-        )
         self.task_object = task_object
+        super(TaskListItem, self).__init__(
+            DoneLeftIcon(self), DeleteIcon(self), **kwargs
+        )
         self.text = task_object.raw_text
 
         self.theme_text_color = "Custom"
         self.text_color = "white"
         # Passes self to popup, so it can access task text
-        self.edit_task_popup = EditTaskField(self)
 
     def on_press(self):
+        self.edit_task_popup = EditTaskField(self)
         self.edit_task_popup.open()
 
 
@@ -52,7 +108,8 @@ class EditTaskField(Popup):
 
         # on_text_validate is what happens when enter is pressed
         self.current_input_field = MDTextField(
-            on_text_validate=self.accept_task_edit, text=self.task_list_item.text
+            on_text_validate=self.accept_task_edit,
+            text=self.task_list_item.task_object.raw_text,
         )
         self.content.add_widget(self.current_input_field)
 
@@ -63,9 +120,14 @@ class EditTaskField(Popup):
         new_task = func.Task(self.current_input_field.text)
         print(f"Editing task {old_task.raw_text} to {new_task.raw_text}")
         app.task_manager.edit_task(old_task=old_task, new_task=new_task)
-        app.task_manager.write_file()
+        app.task_manager.save_tasks()
         self.task_list_item.task_object = new_task
         self.task_list_item.text = self.current_input_field.text
+
+        if new_task.done is True:
+            self.task_list_item.children[1].children[0].children[0].state = "down"
+        elif new_task.done is False:
+            self.task_list_item.children[1].children[0].children[0].state = "normal"
 
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(
@@ -114,7 +176,7 @@ class AddTaskTextField(Popup):
         task_to_add = func.Task(self.input_field.text)
 
         app.task_manager.add_task(task_to_add)
-        app.task_manager.write_file()
+        app.task_manager.save_tasks()
 
         app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
         self.input_field.text = ""
@@ -134,6 +196,7 @@ class DeleteIcon(IconRightWidget):
         # because self.parent is None
         # it's passed so this class can access text from parent
         super(DeleteIcon, self).__init__(**kwargs)
+        self.icon = "trash-can-outline"
         self.task_list_item = task_list_item
         self.theme_icon_color = "Custom"
         self.icon_color = "white"
@@ -146,7 +209,7 @@ class DeleteIcon(IconRightWidget):
         print(f"Deleting task {self.task_list_item.text}")
         app.task_manager.delete_task(self.task_list_item.task_object)
         self.task_list_item.parent.remove_widget(self.task_list_item)
-        app.task_manager.write_file()
+        app.task_manager.save_tasks()
 
 
 class TasksScrollView(ScrollView):
@@ -295,8 +358,13 @@ def set_dark_theme():
     app.theme_cls.theme_style = "Dark"
     app.root.ids.settingslabel.text_color = "white"
     for task in task_widgets:
+        print(f"{task.children[1].children[0].children[0].color_inactive}")
         task.text_color = "white"
+        # Trash icon color
         task.children[0].children[0].icon_color = "white"
+        # Checkbox color
+        task.children[1].children[0].children[0].color_inactive = "white"
+        task.children[1].children[0].children[0].color_active = "#add8e6"
 
     app.root.ids.add_task_button.line_color = "#add8e6"
     # Creating a new search field with the light_theme
@@ -306,6 +374,7 @@ def set_dark_theme():
     app.root.ids.mainbox.remove_widget(search_field_to_delete)
     app.root.ids["search_text_input"] = dark_search_field
     app.root.ids.mainbox.add_widget(dark_search_field, 2)
+
     func.save_settings(theme=app.theme_cls.theme_style)
 
 
@@ -317,7 +386,11 @@ def set_light_theme():
     app.root.ids.settingslabel.text_color = "black"
     for task in task_widgets:
         task.text_color = "black"
+        # Trash icon color
         task.children[0].children[0].icon_color = "black"
+        # Checkbox color
+        task.children[1].children[0].children[0].color_inactive = "black"
+        task.children[1].children[0].children[0].color_active = "#add8e6"
 
     app.root.ids.add_task_button.line_color = "black"
     # Creating a new search field with the light_theme
@@ -348,7 +421,7 @@ class ChooseFileButton(MDRectangleFlatIconButton):
 class MainApp(MDApp):
     def __init__(self, **kwargs):
         super(MainApp, self).__init__(**kwargs)
-        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "BlueGray"
         self.title = "Done"
         self.path = None
