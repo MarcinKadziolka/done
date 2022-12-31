@@ -80,7 +80,6 @@ class TaskManager:
 
     def read_tasks(self):
         # Reads every line of the file as a task
-        print(f"Reading {self.file_name}...")
         try:
             with open(self.file_path, encoding="utf-8") as file:
                 for task in file.read().splitlines():
@@ -89,13 +88,14 @@ class TaskManager:
                     self.tasks.append(Task(task))
         except FileNotFoundError as err:
             print(err)
-        print(f"Tasks: {self.tasks}")
+        # print(f"Reading {self.file_name}...")
+        # print(f"Tasks: {self.tasks}")
 
     def save_tasks(self) -> None:
         # Writes every task as separate line to the file
         raw_tasks = [task.raw_text for task in self.tasks]
-        print(f"Saving {self.file_name}...")
-        print(f"Tasks: {raw_tasks}")
+        # print(f"Saving {self.file_name}...")
+        # print(f"Tasks: {raw_tasks}")
         with open(self.file_name, encoding="utf-8", mode="w") as file:
             file.write("\n".join(raw_tasks))
 
@@ -124,6 +124,14 @@ class TaskManager:
         return list(
             filter(lambda task: pattern.search(task.raw_text_lower), self.tasks)
         )
+
+    def get_unique_tags_combinations(self, tasks):
+        all_tags = [sorted(task.tags) for task in tasks]
+        # Sort the list of lists
+        all_tags.sort()
+        # Get all unique lists of tags
+        all_tags = list(all_tags for all_tags, _ in itertools.groupby(all_tags))
+        return all_tags
 
     def get_tasks_by_projects(self, tasks) -> dict:
         """
