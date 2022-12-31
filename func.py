@@ -216,7 +216,12 @@ def none_priority_to_end_key_for_widgets(task_widget):
         task_widget.task_object.priority if task_widget.task_object.priority else None
     )
 
-    return value is None, value, task_widget.task_object.raw_text_lower
+    return (
+        value is None,
+        value,
+        task_widget.task_object.done,
+        task_widget.task_object.raw_text_lower
+    )
 
 
 def save_settings(path=None, theme=None):
