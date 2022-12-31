@@ -84,7 +84,11 @@ class TaskListItem(OneLineAvatarIconListItem):
         self.text = task_object.raw_text
 
         self.theme_text_color = "Custom"
-        self.text_color = "white"
+        app = MDApp.get_running_app()
+        if app.theme_cls.theme_style == "Dark":
+            self.text_color = "white"
+        else:
+            self.text_color = "black"
         # Passes self to popup, so it can access task text
 
     def on_press(self):
@@ -199,7 +203,11 @@ class DeleteIcon(IconRightWidget):
         self.icon = "trash-can-outline"
         self.task_list_item = task_list_item
         self.theme_icon_color = "Custom"
-        self.icon_color = "white"
+        app = MDApp.get_running_app()
+        if app.theme_cls.theme_style == "Dark":
+            self.icon_color = "white"
+        else:
+            self.icon_color = "black"
 
     def on_press(self):
         self.delete_task()
