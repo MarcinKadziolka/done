@@ -14,8 +14,14 @@ Screen:
                         specific_text_color: "#4a4939"
                         left_action_items:
                             [['menu', lambda x: nav_drawer.set_state("open")]]                    
+                        right_action_items:
+                            [
+                            ["alpha-a-box-outline", lambda x: tasks_scroll_view.sort_by_priority(), "Sort by priority"],
+                            ["animation-outline", lambda x: tasks_scroll_view.sort_by_tags(), "Message star"],
+                            ["file-cabinet", lambda x: tasks_scroll_view.sort_by_projects(), "Sort by projects"]
+                            ]
                     TasksScrollView:
-                        id: main
+                        id: tasks_scroll_view
                         MDList:
                             id: mdlist
                     AddTaskButton:
