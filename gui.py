@@ -219,7 +219,12 @@ class DeleteIcon(IconRightWidget):
 class TagsItem(OneLineListItem):
     def __init__(self, tags, *args, **kwargs):
         super(TagsItem, self).__init__(*args, **kwargs)
-        self.text = str(*tags)
+        self.tags = tags
+        text_processed = ""
+        for tag in tags:
+            text_processed += str(tag) + " "
+        self.text = text_processed[:-1]
+        print(f"{self=}, {self.text=}")
 
 
 def get_tags_projects(all_widgets):
@@ -238,6 +243,8 @@ class TasksScrollView(ScrollView):
         #     tag_item.opacity = 0
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
+        print(f"{searched=}")
+        print(f"{unsearched=}")
         display_widget_lists(tags_items, unsearched, searched)
 
     def sort_by_tags(self):
@@ -246,15 +253,19 @@ class TasksScrollView(ScrollView):
         all_widgets = get_all_widgets()
         task_widgets = get_task_widgets(all_widgets)
         tag_widgets = get_tag_widgets(all_widgets)
-
+        print(f"{tag_widgets=}")
+        print(f"{task_widgets=}")
         list_to_display = []
         for tag_widget in tag_widgets:
             current_tasks = []
             for task_widget in task_widgets:
-                print(f"{task_widget.text=}")
-                if tag_widget.text == sorted(task_widget.task_object.tags):
+                print(f"{tag_widget.tags=}")
+                print(f"{sorted(task_widget.task_object.tags)=}")
+                if tag_widget.tags == sorted(task_widget.task_object.tags):
+                    print("Match")
                     current_tasks.append(task_widget)
-
+            current_tasks.append(tag_widget)
+            list_to_display.extend(current_tasks)
         app = MDApp.get_running_app()
         app.root.ids.mdlist.children = list_to_display
 
@@ -319,9 +330,9 @@ class DarkSearchTextInput(MDTextField):
     def on_text(self, instance, value):
         app = MDApp.get_running_app()
         task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-
+        tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
         searched, unsearched = filter_by_search_text(self.text, task_widgets)
-        display_widget_lists(unsearched, searched)
+        display_widget_lists(tags_widgets, unsearched, searched)
 
 
 class LightSearchTextInput(DarkSearchTextInput):
@@ -520,6 +531,7 @@ class MainApp(MDApp):
                 self.task_manager.tasks
             )
             for tag_combination in unique_tags_combinations:
+                print(f"{tag_combination=}")
                 app.root.ids.mdlist.add_widget(TagsItem(tag_combination))
             tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
             task_widgets = get_task_widgets(app.root.ids.mdlist.children)
