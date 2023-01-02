@@ -6,7 +6,7 @@ from enum import unique
 from os import unsetenv, wait
 from re import search
 from kivy.lang import Builder
-from kivymd.app import MDApp
+from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineAvatarIconListItem, OneLineListItem
 from kivymd.uix.list.list import MDCheckbox
@@ -95,6 +95,11 @@ class TaskListItem(OneLineAvatarIconListItem):
         self.edit_task_popup.open()
 
 
+class MyTextField(MDTextField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class EditTaskField(Popup):
     def __init__(self, task_list_item, **kwargs):
         # parent_widget should be the object where popup was called from
@@ -108,13 +113,15 @@ class EditTaskField(Popup):
         self.task_list_item = task_list_item
         self.size_hint = (0.8, 0.1)
         self.content = MDBoxLayout(orientation="horizontal")
-
         # on_text_validate is what happens when enter is pressed
-        self.current_input_field = MDTextField(
+        self.current_input_field = MyTextField(
             on_text_validate=self.accept_task_edit,
             text=self.task_list_item.task_object.raw_text,
         )
         self.content.add_widget(self.current_input_field)
+
+    def on_open(self):
+        self.current_input_field.focus = True
 
     def accept_task_edit(self, *args):
         app = MDApp.get_running_app()
@@ -160,7 +167,6 @@ class AddTaskButton(MDIconButton):
 class AddTaskTextField(Popup):
     def __init__(self, **kwargs):
         super(AddTaskTextField, self).__init__(**kwargs)
-        # Window.borderless = True
         # Hide the title
         self.title = ""
         self.separator_height = 0
@@ -171,6 +177,9 @@ class AddTaskTextField(Popup):
 
         self.content = MDBoxLayout(orientation="horizontal")
         self.content.add_widget(self.input_field)
+
+    def on_open(self):
+        self.input_field.focus = True
 
     def on_enter(self, *args):
         app = MDApp.get_running_app()
@@ -187,8 +196,11 @@ class AddTaskTextField(Popup):
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
-        self.dismiss()
+        # Allow for multiple entries
+        Clock.schedule_once(self.refocus_ti)
 
+    def refocus_ti(self, *args):
+        self.input_field.focus = True
 
 class DeleteIcon(IconRightWidget):
     def __init__(self, task_list_item, **kwargs):
@@ -224,7 +236,7 @@ class TagsItem(OneLineListItem):
         for tag in tags:
             text_processed += str(tag) + " "
         self.text = text_processed[:-1]
-        self.font_style = 'H6'
+        self.font_style = "H6"
         app = MDApp.get_running_app()
         self.theme_text_color = "Custom"
         app = MDApp.get_running_app()
