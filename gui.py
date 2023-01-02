@@ -1,10 +1,6 @@
 # from kivy.config import Config
 #
 # Config.set("graphics", "resizable", False)
-from asyncio import current_task
-from enum import unique
-from os import unsetenv, wait
-from re import search
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
@@ -23,7 +19,6 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDIconButton, MDRectangleFlatIconButton
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 from kivymd.uix.selectioncontrol import MDCheckbox
-import itertools
 import func
 
 
@@ -436,6 +431,8 @@ def get_task_widgets(all_widgets):
 def get_tag_widgets(all_widgets):
     return [widget for widget in all_widgets if isinstance(widget, TagsItem)]
 
+def get_project_widgets(all_widgets):
+    return [widget for widget in all_widgets if isinstance(widget, ProjectsItem)]
 
 def set_dark_theme():
     app = MDApp.get_running_app()
