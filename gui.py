@@ -239,9 +239,22 @@ class TagsItem(OneLineListItem):
             self.text_color = "black"
 
 
-class ProjectsItem(TagsItem):
-    def __init__(self, tags, *args, **kwargs):
-        super(TagsItem, self).__init__(*args, **kwargs)
+class ProjectsItem(OneLineListItem):
+    def __init__(self, projects, *args, **kwargs):
+        super(ProjectsItem, self).__init__(*args, **kwargs)
+        self.projects = projects
+        text_processed = ""
+        for project in projects:
+            text_processed += str(project) + " "
+        self.text = text_processed[:-1]
+        self.font_style = "H6"
+        app = MDApp.get_running_app()
+        self.theme_text_color = "Custom"
+        app = MDApp.get_running_app()
+        if app.theme_cls.theme_style == "Dark":
+            self.text_color = "white"
+        else:
+            self.text_color = "black"
 
 
 class TasksScrollView(ScrollView):
@@ -264,10 +277,11 @@ class TasksScrollView(ScrollView):
         print("Sort by tags")
         app = MDApp.get_running_app()
         all_widgets = get_all_widgets()
+        projects_widgets = get_project_widgets(all_widgets)
         task_widgets = get_task_widgets(all_widgets)
         tag_widgets = get_tag_widgets(all_widgets)
         list_to_display = []
-
+        list_to_display.extend(projects_widgets)
         # Moving empty tags to the end of the list
         # so tasks without tags appear last
         if tag_widgets[-1].tags == []:
@@ -431,8 +445,10 @@ def get_task_widgets(all_widgets):
 def get_tag_widgets(all_widgets):
     return [widget for widget in all_widgets if isinstance(widget, TagsItem)]
 
+
 def get_project_widgets(all_widgets):
     return [widget for widget in all_widgets if isinstance(widget, ProjectsItem)]
+
 
 def set_dark_theme():
     app = MDApp.get_running_app()
@@ -543,27 +559,11 @@ class MainApp(MDApp):
 
         if settings:
             self.task_manager = func.TaskManager(settings["path"])
-            for task in self.task_manager.tasks:
-                app.root.ids.mdlist.add_widget(TaskListItem(task))
+            self.add_and_display_all_widgets()
             if settings["theme"] == "Dark":
                 set_dark_theme()
             else:
                 set_light_theme()
-
-            unique_tags_combinations = self.task_manager.get_unique_tags_combinations(
-                self.task_manager.tasks
-            )
-            for tag_combination in unique_tags_combinations:
-                print(f"{tag_combination=}")
-                app.root.ids.mdlist.add_widget(TagsItem(tag_combination))
-            tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
-            task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-            current_search_text = app.root.ids.search_text_input.text
-            searched, unsearched = filter_by_search_text(
-                current_search_text, task_widgets
-            )
-            display_widget_lists(tags_widgets, unsearched, searched)
-
         else:
             self.dialog.open()
 
@@ -577,18 +577,7 @@ class MainApp(MDApp):
         )  # output manager to the screen
         self.manager_open = True
 
-    def select_path(self, path):
-        """It will be called when you click on the file name
-        or the catalog selection button.
-
-        :type path: str;
-        :param path: path to the selected directory or file;
-        """
-        self.exit_manager()
-        self.task_manager = func.TaskManager(path)
-        func.save_settings(path=path)
-        toast(path)
-
+    def add_and_display_all_widgets(self):
         app = MDApp.get_running_app()
         for task in self.task_manager.tasks:
             app.root.ids.mdlist.add_widget(TaskListItem(task))
@@ -604,15 +593,31 @@ class MainApp(MDApp):
             self.task_manager.get_unique_projects_combinations(self.task_manager.tasks)
         )
 
-        for project_combination in unique_tags_combinations:
+        for project_combination in unique_projects_combinations:
             print(f"{project_combination=}")
-            app.root.ids.mdlist.add_widget(ProjectItem(project_combination))
+            app.root.ids.mdlist.add_widget(ProjectsItem(project_combination))
 
-        tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        all_widgets = get_all_widgets()
+        project_widgets = get_project_widgets(all_widgets)
+        tags_widgets = get_tag_widgets(all_widgets)
+        task_widgets = get_task_widgets(all_widgets)
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        display_widget_lists(tags_widgets, unsearched, searched)
+        print(f"{project_widgets=}")
+        display_widget_lists(project_widgets, tags_widgets, unsearched, searched)
+
+    def select_path(self, path):
+        """It will be called when you click on the file name
+        or the catalog selection button.
+
+        :type path: str;
+        :param path: path to the selected directory or file;
+        """
+        self.exit_manager()
+        self.task_manager = func.TaskManager(path)
+        func.save_settings(path=path)
+        toast(path)
+        self.add_and_display_all_widgets()
         set_light_theme()
         func.save_settings(theme="Light")
 
