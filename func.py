@@ -133,6 +133,14 @@ class TaskManager:
         all_tags = list(all_tags for all_tags, _ in itertools.groupby(all_tags))
         return all_tags
 
+    def get_unique_projects_combinations(self, tasks):
+        all_projects = [sorted(task.projects) for task in tasks]
+        # Sort the list of lists
+        all_projects.sort()
+        # Get all unique lists of tags
+        all_projects = list(all_tags for all_tags, _ in itertools.groupby(all_projects))
+        return all_projects
+
     def get_tasks_by_projects(self, tasks) -> dict:
         """
         Returns a dict with projects as keys and tasks as values
@@ -228,7 +236,7 @@ def none_priority_to_end_key_for_widgets(task_widget):
         task_widget.task_object.done,
         value is None,
         value,
-        task_widget.task_object.raw_text_lower
+        task_widget.task_object.raw_text_lower,
     )
 
 
