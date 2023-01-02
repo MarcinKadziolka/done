@@ -263,15 +263,15 @@ class TasksScrollView(ScrollView):
 
     def sort_by_priority(self):
         app = MDApp.get_running_app()
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        tags_items = get_tag_widgets(app.root.ids.mdlist.children)
+        all_widgets = get_all_widgets()
+        task_widgets = get_task_widgets(all_widgets)
+        tags_items = get_tag_widgets(all_widgets)
+        project_widgets = get_project_widgets(all_widgets)
         # for tag_item in tags_items:
         #     tag_item.opacity = 0
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        print(f"{searched=}")
-        print(f"{unsearched=}")
-        display_widget_lists(tags_items, unsearched, searched)
+        display_widget_lists(project_widgets, tags_items, unsearched, searched)
 
     def sort_by_tags(self):
         print("Sort by tags")
@@ -322,6 +322,7 @@ class TasksScrollView(ScrollView):
             list_to_display.extend(current_tasks)
         app = MDApp.get_running_app()
         app.root.ids.mdlist.children = list_to_display
+
 
 class DarkSearchTextInput(MDTextField):
     def __init__(self, **kwargs):
