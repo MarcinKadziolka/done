@@ -174,11 +174,8 @@ class AddTaskTextField(Popup):
         self.size_hint = (0.8, 0.1)
 
         self.input_field = MDTextField(on_text_validate=self.on_enter)
-
         self.content = MDBoxLayout(orientation="horizontal")
         self.content.add_widget(self.input_field)
-
-    def on_open(self):
         self.input_field.focus = True
 
     def on_enter(self, *args):
@@ -201,6 +198,7 @@ class AddTaskTextField(Popup):
 
     def refocus_ti(self, *args):
         self.input_field.focus = True
+
 
 class DeleteIcon(IconRightWidget):
     def __init__(self, task_list_item, **kwargs):
@@ -246,8 +244,9 @@ class TagsItem(OneLineListItem):
             self.text_color = "black"
 
 
-def get_tags_projects(all_widgets):
-    return [widget for widget in all_widgets if isinstance(widget, TagsItem)]
+class ProjectsItem(TagsItem):
+    def __init__(self, tags, *args, **kwargs):
+        super(TagsItem, self).__init__(*args, **kwargs)
 
 
 class TasksScrollView(ScrollView):
@@ -257,7 +256,7 @@ class TasksScrollView(ScrollView):
     def sort_by_priority(self):
         app = MDApp.get_running_app()
         task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        tags_items = get_tags_projects(app.root.ids.mdlist.children)
+        tags_items = get_tag_widgets(app.root.ids.mdlist.children)
         # for tag_item in tags_items:
         #     tag_item.opacity = 0
         current_search_text = app.root.ids.search_text_input.text
@@ -603,6 +602,15 @@ class MainApp(MDApp):
         for tag_combination in unique_tags_combinations:
             print(f"{tag_combination=}")
             app.root.ids.mdlist.add_widget(TagsItem(tag_combination))
+
+        unique_projects_combinations = (
+            self.task_manager.get_unique_projects_combinations(self.task_manager.tasks)
+        )
+
+        for project_combination in unique_tags_combinations:
+            print(f"{project_combination=}")
+            app.root.ids.mdlist.add_widget(ProjectItem(project_combination))
+
         tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
         task_widgets = get_task_widgets(app.root.ids.mdlist.children)
         current_search_text = app.root.ids.search_text_input.text
