@@ -233,8 +233,12 @@ def none_priority_to_end_key_for_widgets(task_widget):
 
 
 def save_settings(path=None, theme=None):
-    with open("settings.txt", "r") as f:
-        settings = json.load(f)
+    if not os.path.exists("settings.txt"):
+        settings = {}
+    else:
+        with open("settings.txt", "r") as f:
+            settings = json.load(f)
+
     if path is not None:
         settings["path"] = path
     if theme is not None:
@@ -244,6 +248,10 @@ def save_settings(path=None, theme=None):
 
 
 def read_settings():
-    with open("settings.txt", "r") as f:
-        settings = json.load(f)
+    try:
+        with open("settings.txt", "r") as f:
+            settings = json.load(f)
+    except FileNotFoundError:
+        settings = None
+        print("Settings file not found")
     return settings
