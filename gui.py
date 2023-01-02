@@ -224,7 +224,14 @@ class TagsItem(OneLineListItem):
         for tag in tags:
             text_processed += str(tag) + " "
         self.text = text_processed[:-1]
-        print(f"{self=}, {self.text=}")
+        self.font_style = 'H6'
+        app = MDApp.get_running_app()
+        self.theme_text_color = "Custom"
+        app = MDApp.get_running_app()
+        if app.theme_cls.theme_style == "Dark":
+            self.text_color = "white"
+        else:
+            self.text_color = "black"
 
 
 def get_tags_projects(all_widgets):
@@ -253,16 +260,17 @@ class TasksScrollView(ScrollView):
         all_widgets = get_all_widgets()
         task_widgets = get_task_widgets(all_widgets)
         tag_widgets = get_tag_widgets(all_widgets)
-        print(f"{tag_widgets=}")
-        print(f"{task_widgets=}")
         list_to_display = []
+
+        # Moving empty tags to the end of the list
+        # so tasks without tags appear last
+        if tag_widgets[-1].tags == []:
+            tag_widgets.insert(0, tag_widgets.pop())
+
         for tag_widget in tag_widgets:
             current_tasks = []
             for task_widget in task_widgets:
-                print(f"{tag_widget.tags=}")
-                print(f"{sorted(task_widget.task_object.tags)=}")
                 if tag_widget.tags == sorted(task_widget.task_object.tags):
-                    print("Match")
                     current_tasks.append(task_widget)
             current_tasks.append(tag_widget)
             list_to_display.extend(current_tasks)
@@ -421,7 +429,7 @@ def get_tag_widgets(all_widgets):
 def set_dark_theme():
     app = MDApp.get_running_app()
     task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-
+    tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
     # Setting dark theme
     app.theme_cls.theme_style = "Dark"
     app.root.ids.settingslabel.text_color = "white"
@@ -432,6 +440,9 @@ def set_dark_theme():
         # Checkbox color
         task.children[1].children[0].children[0].color_inactive = "white"
         task.children[1].children[0].children[0].color_active = "#add8e6"
+
+    for tag in tags_widgets:
+        tag.text_color = "white"
 
     app.root.ids.add_task_button.line_color = "#add8e6"
     # Creating a new search field with the light_theme
@@ -448,6 +459,7 @@ def set_dark_theme():
 def set_light_theme():
     app = MDApp.get_running_app()
     task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+    tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
 
     # Setting light theme
     app.theme_cls.theme_style = "Light"
@@ -459,6 +471,9 @@ def set_light_theme():
         # Checkbox color
         task.children[1].children[0].children[0].color_inactive = "black"
         task.children[1].children[0].children[0].color_active = "#add8e6"
+
+    for tag in tags_widgets:
+        tag.text_color = "black"
 
     app.root.ids.add_task_button.line_color = "black"
     # Creating a new search field with the light_theme
@@ -568,12 +583,21 @@ class MainApp(MDApp):
 
         app = MDApp.get_running_app()
         for task in self.task_manager.tasks:
-            app.root.ids.mdlist.add_widget(TagsItem(task))
+            app.root.ids.mdlist.add_widget(TaskListItem(task))
 
-        current_search_text = app.root.ids.search_text_input.text
+        unique_tags_combinations = self.task_manager.get_unique_tags_combinations(
+            self.task_manager.tasks
+        )
+        for tag_combination in unique_tags_combinations:
+            print(f"{tag_combination=}")
+            app.root.ids.mdlist.add_widget(TagsItem(tag_combination))
+        tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
         task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        display_widget_lists(unsearched, searched)
+        display_widget_lists(tags_widgets, unsearched, searched)
+        set_light_theme()
+        func.save_settings(theme="Light")
 
     def exit_manager(self, *args):
         """Called when the user reaches the root of the directory tree."""
