@@ -300,6 +300,28 @@ class TasksScrollView(ScrollView):
     def sort_by_projects(self):
         print("Sort by projects")
 
+        app = MDApp.get_running_app()
+        all_widgets = get_all_widgets()
+        project_widgets = get_project_widgets(all_widgets)
+        task_widgets = get_task_widgets(all_widgets)
+        tag_widgets = get_tag_widgets(all_widgets)
+        list_to_display = []
+        # Moving unnesessary widgets to the end of displaying
+        list_to_display.extend(tag_widgets)
+        # Moving empty projects to the end of the list
+        # so tasks without tags appear last
+        if project_widgets[-1].projects == []:
+            project_widgets.insert(0, project_widgets.pop())
+
+        for project_widget in project_widgets:
+            current_tasks = []
+            for task_widget in task_widgets:
+                if project_widget.projects == sorted(task_widget.task_object.projects):
+                    current_tasks.append(task_widget)
+            current_tasks.append(project_widget)
+            list_to_display.extend(current_tasks)
+        app = MDApp.get_running_app()
+        app.root.ids.mdlist.children = list_to_display
 
 class DarkSearchTextInput(MDTextField):
     def __init__(self, **kwargs):
