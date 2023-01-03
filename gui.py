@@ -30,7 +30,12 @@ class MyCheckBox(MDCheckbox):
         self.md_bg_color = [1, 1, 1, 0]
         self.theme_text_color = "Custom"
         self.color_active = "#add8e6"
-        self.color_inactive = "black"
+        app = MDApp.get_running_app()
+
+        if app.theme_cls.theme_style == "Dark":
+            self.color_inactive = "white"
+        else:
+            self.color_inactive = "black"
         self.checkbox_icon_normal = "checkbox-blank-outline"
         self.checkbox_icon_down = "checkbox-marked"
         self.task_list_item = task_list_item
@@ -131,17 +136,32 @@ class EditTaskField(Popup):
         self.task_list_item.task_object = new_task
         self.task_list_item.text = self.current_input_field.text
 
+        # Add tags widget if it doesn't already exist
+        all_tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
+        for w in all_tags_widgets:
+            if sorted(self.task_list_item.task_object.tags) == w.tags:
+                break
+        else:
+            app.root.ids.mdlist.add_widget(
+                TagsItem(self.task_list_item.task_object.tags)
+            )
+
+        # Add project widgets if it doesn't already exist
+        all_project_widgets = get_project_widgets(app.root.ids.mdlist.children)
+        for w in all_project_widgets:
+            if sorted(self.task_list_item.task_object.projects) == w.projects:
+                break
+        else:
+            app.root.ids.mdlist.add_widget(
+                ProjectsItem(self.task_list_item.task_object.projects)
+            )
+
         if new_task.done is True:
             self.task_list_item.children[1].children[0].children[0].state = "down"
         elif new_task.done is False:
             self.task_list_item.children[1].children[0].children[0].state = "normal"
 
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        current_search_text = app.root.ids.search_text_input.text
-
-        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        display_widget_lists(unsearched, searched)
-
+        TasksScrollView.sort_all()
         self.dismiss()
 
 
@@ -183,11 +203,29 @@ class AddTaskTextField(Popup):
         app.task_manager.add_task(task_to_add)
         app.task_manager.save_tasks()
 
-        app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
+        widget_to_add = TaskListItem(task_to_add)
+        app.root.ids.mdlist.add_widget(widget_to_add)
 
+        # Add tags widget if it doesn't already exist
+        all_tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
+        for w in all_tags_widgets:
+            if sorted(widget_to_add.task_object.tags) == w.tags:
+                break
+        else:
+            app.root.ids.mdlist.add_widget(TagsItem(widget_to_add.task_object.tags))
+
+        # Add project widgets if it doesn't already exist
+        all_project_widgets = get_project_widgets(app.root.ids.mdlist.children)
+        for w in all_project_widgets:
+            if sorted(widget_to_add.task_object.projects) == w.projects:
+                break
+        else:
+            app.root.ids.mdlist.add_widget(
+                ProjectsItem(widget_to_add.task_object.projects)
+            )
         self.input_field.text = ""
 
-        TasksScrollView.sort()
+        TasksScrollView.sort_all()
         # current_search_text = app.root.ids.search_text_input.text
         # task_widgets = get_task_widgets(app.root.ids.mdlist.children)
         # searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
@@ -224,6 +262,7 @@ class DeleteIcon(IconRightWidget):
         app.task_manager.delete_task(self.task_list_item.task_object)
         self.task_list_item.parent.remove_widget(self.task_list_item)
         app.task_manager.save_tasks()
+        TasksScrollView.sort_all()
 
 
 class TagsItem(OneLineListItem):
