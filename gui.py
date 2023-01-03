@@ -267,7 +267,7 @@ class TasksScrollView(ScrollView):
         super().__init__(**kwargs)
 
     @staticmethod
-    def sort():
+    def sort_all():
         app = MDApp.get_running_app()
         if app.sort_mode == SortMode.PRIORITY:
             TasksScrollView.sort_by_priority()
@@ -433,7 +433,7 @@ class DarkSearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        TasksScrollView.sort()
+        TasksScrollView.sort_all()
 
 
 class LightSearchTextInput(DarkSearchTextInput):
@@ -741,10 +741,12 @@ class MainApp(MDApp):
         project_widgets = get_project_widgets(all_widgets)
         tags_widgets = get_tag_widgets(all_widgets)
         task_widgets = get_task_widgets(all_widgets)
-        current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        print(f"{project_widgets=}")
-        display_widget_lists(project_widgets, tags_widgets, unsearched, searched)
+
+        TasksScrollView.sort_all()
+        # current_search_text = app.root.ids.search_text_input.text
+        # searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
+        # print(f"{project_widgets=}")
+        # display_widget_lists(project_widgets, tags_widgets, unsearched, searched)
 
     def select_path(self, path):
         """It will be called when you click on the file name
