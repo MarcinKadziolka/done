@@ -195,7 +195,8 @@ class AddTaskTextField(Popup):
         self.content = MDBoxLayout(orientation="horizontal")
         self.content.add_widget(self.input_field)
 
-        # self.input_field.focus = True
+    def on_open(self):
+        self.input_field.focus = True
 
     def on_dismiss(self):
         self.input_field.text = ""
