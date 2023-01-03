@@ -96,7 +96,7 @@ class TaskManager:
         raw_tasks = [task.raw_text for task in self.tasks]
         # print(f"Saving {self.file_name}...")
         # print(f"Tasks: {raw_tasks}")
-        with open(self.file_name, encoding="utf-8", mode="w") as file:
+        with open(self.file_path, encoding="utf-8", mode="w") as file:
             file.write("\n".join(raw_tasks))
 
     def add_task(self, task: Task) -> None:
