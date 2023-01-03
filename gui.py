@@ -737,16 +737,7 @@ class MainApp(MDApp):
             print(f"{project_combination=}")
             app.root.ids.mdlist.add_widget(ProjectsItem(project_combination))
 
-        all_widgets = get_all_widgets()
-        project_widgets = get_project_widgets(all_widgets)
-        tags_widgets = get_tag_widgets(all_widgets)
-        task_widgets = get_task_widgets(all_widgets)
-
         TasksScrollView.sort_all()
-        # current_search_text = app.root.ids.search_text_input.text
-        # searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        # print(f"{project_widgets=}")
-        # display_widget_lists(project_widgets, tags_widgets, unsearched, searched)
 
     def select_path(self, path):
         """It will be called when you click on the file name
