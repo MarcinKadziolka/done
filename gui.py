@@ -1,6 +1,8 @@
 # from kivy.config import Config
 #
 # Config.set("graphics", "resizable", False)
+from enum import Enum
+from operator import truediv
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
@@ -136,6 +138,7 @@ class EditTaskField(Popup):
 
         task_widgets = get_task_widgets(app.root.ids.mdlist.children)
         current_search_text = app.root.ids.search_text_input.text
+
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(unsearched, searched)
 
@@ -181,12 +184,14 @@ class AddTaskTextField(Popup):
         app.task_manager.save_tasks()
 
         app.root.ids.mdlist.add_widget(TaskListItem(task_to_add))
+
         self.input_field.text = ""
 
-        current_search_text = app.root.ids.search_text_input.text
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        display_widget_lists(unsearched, searched)
+        TasksScrollView.sort()
+        # current_search_text = app.root.ids.search_text_input.text
+        # task_widgets = get_task_widgets(app.root.ids.mdlist.children)
+        # searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
+        # display_widget_lists(unsearched, searched)
 
         # Allow for multiple entries
         Clock.schedule_once(self.refocus_ti)
@@ -261,43 +266,77 @@ class TasksScrollView(ScrollView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def sort_by_priority(self):
+    @staticmethod
+    def sort():
+        app = MDApp.get_running_app()
+        if app.sort_mode == SortMode.PRIORITY:
+            TasksScrollView.sort_by_priority()
+        elif app.sort_mode == SortMode.TAG:
+            TasksScrollView.sort_by_tags()
+        elif app.sort_mode == SortMode.PROJECT:
+            TasksScrollView.sort_by_projects()
+
+    @staticmethod
+    def sort_by_priority():
+        print("Sort by priority")
         app = MDApp.get_running_app()
         all_widgets = get_all_widgets()
         task_widgets = get_task_widgets(all_widgets)
         tags_items = get_tag_widgets(all_widgets)
         project_widgets = get_project_widgets(all_widgets)
-        # for tag_item in tags_items:
-        #     tag_item.opacity = 0
+        for w in project_widgets:
+            w.opacity = 0
+        for w in tags_items:
+            w.opacity = 0
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(project_widgets, tags_items, unsearched, searched)
+        app.sort_mode = app.sort_mode.PRIORITY
 
-    def sort_by_tags(self):
+    @staticmethod
+    def sort_by_tags():
         print("Sort by tags")
         app = MDApp.get_running_app()
+
         all_widgets = get_all_widgets()
-        projects_widgets = get_project_widgets(all_widgets)
         task_widgets = get_task_widgets(all_widgets)
+        projects_widgets = get_project_widgets(all_widgets)
+        for project_widget in projects_widgets:
+            project_widget.opacity = 0
         tag_widgets = get_tag_widgets(all_widgets)
+
+        current_search_text = app.root.ids.search_text_input.text
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         list_to_display = []
+
+        tag_widgets.sort(key=lambda x: x.text, reverse=True)
+        # Moving irrelevant widgets to the bottom
         list_to_display.extend(projects_widgets)
+        list_to_display.extend(unsearched)
         # Moving empty tags to the end of the list
         # so tasks without tags appear last
         if tag_widgets[-1].tags == []:
             tag_widgets.insert(0, tag_widgets.pop())
 
+        hidden_tag_widgets = []
         for tag_widget in tag_widgets:
             current_tasks = []
-            for task_widget in task_widgets:
+            for task_widget in searched:
                 if tag_widget.tags == sorted(task_widget.task_object.tags):
                     current_tasks.append(task_widget)
-            current_tasks.append(tag_widget)
+            if len(current_tasks) > 0:
+                tag_widget.opacity = 1
+                current_tasks.append(tag_widget)
+            else:
+                tag_widget.opacity = 0
+                hidden_tag_widgets.append(tag_widget)
             list_to_display.extend(current_tasks)
-        app = MDApp.get_running_app()
-        app.root.ids.mdlist.children = list_to_display
 
-    def sort_by_projects(self):
+        display_widget_lists(hidden_tag_widgets, list_to_display)
+        app.sort_mode = app.sort_mode.TAG
+
+    @staticmethod
+    def sort_by_projects():
         print("Sort by projects")
 
         app = MDApp.get_running_app()
@@ -305,6 +344,14 @@ class TasksScrollView(ScrollView):
         project_widgets = get_project_widgets(all_widgets)
         task_widgets = get_task_widgets(all_widgets)
         tag_widgets = get_tag_widgets(all_widgets)
+        for w in tag_widgets:
+            w.opacity = 0
+
+        current_search_text = app.root.ids.search_text_input.text
+        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
+
+        project_widgets.sort(key=lambda x: x.text, reverse=True)
+
         list_to_display = []
         # Moving unnesessary widgets to the end of displaying
         list_to_display.extend(tag_widgets)
@@ -313,15 +360,22 @@ class TasksScrollView(ScrollView):
         if project_widgets[-1].projects == []:
             project_widgets.insert(0, project_widgets.pop())
 
+        hidden_project_tags = []
         for project_widget in project_widgets:
             current_tasks = []
-            for task_widget in task_widgets:
+            for task_widget in searched:
                 if project_widget.projects == sorted(task_widget.task_object.projects):
                     current_tasks.append(task_widget)
-            current_tasks.append(project_widget)
+            if len(current_tasks) > 0:
+                project_widget.opacity = 1
+                current_tasks.append(project_widget)
+            else:
+                project_widget.opacity = 0
+                hidden_project_tags.append(project_widget)
             list_to_display.extend(current_tasks)
-        app = MDApp.get_running_app()
-        app.root.ids.mdlist.children = list_to_display
+        display_widget_lists(hidden_project_tags, unsearched, list_to_display)
+
+        app.sort_mode = app.sort_mode.PROJECT
 
 
 class DarkSearchTextInput(MDTextField):
@@ -379,11 +433,7 @@ class DarkSearchTextInput(MDTextField):
 
     # on_text is called everytime text in the input field is changed
     def on_text(self, instance, value):
-        app = MDApp.get_running_app()
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
-        searched, unsearched = filter_by_search_text(self.text, task_widgets)
-        display_widget_lists(tags_widgets, unsearched, searched)
+        TasksScrollView.sort()
 
 
 class LightSearchTextInput(DarkSearchTextInput):
@@ -396,6 +446,65 @@ class LightSearchTextInput(DarkSearchTextInput):
         self.text_color_normal = [0, 0, 0, 1]
         self.text_color_focus = [0, 0, 0, 1]
         self.fill_color_normal = "#F5F5DC"
+
+
+def filter_by_search_text_tags(
+    search_text: str, task_widgets: list[TaskListItem]
+) -> tuple[list[TaskListItem], list[TaskListItem]]:
+    """
+    return searched_sorted_by_priority, unsearched
+    """
+    search_text = search_text.lower()
+
+    searched = []
+    unsearched = []
+
+    for task_widget in task_widgets:
+        if search_text in task_widget.text.lower():
+            task_widget.opacity = 1
+            task_widget.disabled = False
+            searched.append(task_widget)
+        else:
+            task_widget.opacity = 0
+            task_widget.disabled = True
+            unsearched.append(task_widget)
+    print("SORTING")
+    searched_sorted_by_priority = sorted(
+        searched,
+        key=lambda x: (
+            x.task_object.raw_text,
+            sorted(x.task_object.tags),
+            x.task_object.priority,
+        ),
+        reverse=True,
+    )
+    return searched_sorted_by_priority, unsearched
+
+
+def filter_by_search_text(
+    search_text: str, task_widgets: list[TaskListItem]
+) -> tuple[list[TaskListItem], list[TaskListItem]]:
+    """
+    return searched_sorted_by_priority, unsearched
+    """
+    search_text = search_text.lower()
+
+    searched = []
+    unsearched = []
+
+    for task_widget in task_widgets:
+        if search_text in task_widget.text.lower():
+            task_widget.opacity = 1
+            task_widget.disabled = False
+            searched.append(task_widget)
+        else:
+            task_widget.opacity = 0
+            task_widget.disabled = True
+            unsearched.append(task_widget)
+    searched_sorted_by_priority = sorted(
+        searched, key=func.none_priority_to_end_key_for_widgets, reverse=True
+    )
+    return searched_sorted_by_priority, unsearched
 
 
 def filter_by_search_text(
@@ -548,6 +657,12 @@ class ChooseFileButton(MDRectangleFlatIconButton):
         app.file_manager_open()
 
 
+class SortMode(Enum):
+    PRIORITY = 1
+    TAG = 2
+    PROJECT = 3
+
+
 class MainApp(MDApp):
     def __init__(self, **kwargs):
         super(MainApp, self).__init__(**kwargs)
@@ -557,6 +672,8 @@ class MainApp(MDApp):
         self.path = None
         self.task_manager = None
         self.manager_open = False
+        self.sort_mode = SortMode.PRIORITY
+
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
