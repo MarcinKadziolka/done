@@ -428,7 +428,7 @@ class DarkSearchTextInput(MDTextField):
         super(DarkSearchTextInput, self).__init__(**kwargs)
         self.mode = "round"
 
-        self.default_size_hint_x = 0.5
+        self.default_size_hint_x = 0.6
         self.default_size_hint_y = 0.08
         self.default_size_height = 40
         # self.size_hint_y = self.default_size_hint_y
