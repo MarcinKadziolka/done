@@ -681,15 +681,16 @@ def set_light_theme():
     func.save_settings(theme=app.theme_cls.theme_style)
 
 
-def set_active_element_theme(previous_index, index):
-    app = MDApp.get_running_app()
-    if app.theme_cls.theme_style == "Dark":
-        app.root.ids.mdlist.children[previous_index].text_color = "white"
+def set_normal_element_theme(item, theme):
+    if theme == "Dark":
+        item.text_color = "white"
     else:
-        app.root.ids.mdlist.children[previous_index].text_color = "black"
+        item.text_color = "black"
 
-    app.root.ids.mdlist.children[index].text_color = "red"
-    print(f"{app.root.ids.mdlist.children[index].text=}")
+
+def set_active_element_theme(item):
+    print(f"{item.text=}")
+    item.text_color = "red"
 
 
 class ContentNavigationDrawer(MDBoxLayout):
@@ -722,6 +723,7 @@ class MainApp(MDApp):
         self.task_manager = None
         self.manager_open = False
         self.sort_mode = SortMode.PRIORITY
+        self.selected_item = None
         self.selected_item_id = -1
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
@@ -768,18 +770,25 @@ class MainApp(MDApp):
 
         elif key == 273:
             print("Arrow up")
+            set_normal_element_theme(self.selected_item)
             if self.selected_item_id + 1 > len(app.root.ids.mdlist.children) - 1:
                 return
             self.selected_item_id += 1
-
-            set_active_element_theme(self.selected_item_id - 1, self.selected_item_id)
+            # if isinstance(
+            #     app.root.ids.mdlist.children[self.selected_item_id], TaskListItem
+            # ):
+            #     self.selected_item_id += 1
+            self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            set_active_element_theme(self.selected_item)
 
         elif key == 274:
+            set_normal_element_theme(self.selected_item)
             print("Arrow down")
             if self.selected_item_id - 1 < 0:
                 return
             self.selected_item_id -= 1
-            set_active_element_theme(self.selected_item_id + 1, self.selected_item_id)
+            self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            set_active_element_theme(self.selected_item)
 
     def on_start(self):
         settings = func.read_settings()
