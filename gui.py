@@ -329,6 +329,12 @@ class TasksScrollView(ScrollView):
         current_search_text = app.root.ids.search_text_input.text
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(project_widgets, tags_items, unsearched, searched)
+
+        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
+        app.selected_item_id = len(app.root.ids.mdlist.children) - 1
+        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
+        set_active_element_theme(app.selected_item)
+
         app.sort_mode = app.sort_mode.PRIORITY
 
     @staticmethod
@@ -371,6 +377,12 @@ class TasksScrollView(ScrollView):
             list_to_display.extend(current_tasks)
 
         display_widget_lists(hidden_tag_widgets, list_to_display)
+
+        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
+        app.selected_item_id = len(app.root.ids.mdlist.children) - 2
+        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
+        set_active_element_theme(app.selected_item)
+
         app.sort_mode = app.sort_mode.TAG
 
     @staticmethod
@@ -412,6 +424,11 @@ class TasksScrollView(ScrollView):
                 hidden_project_tags.append(project_widget)
             list_to_display.extend(current_tasks)
         display_widget_lists(hidden_project_tags, unsearched, list_to_display)
+
+        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
+        app.selected_item_id = len(app.root.ids.mdlist.children) - 2
+        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
+        set_active_element_theme(app.selected_item)
 
         app.sort_mode = app.sort_mode.PROJECT
 
@@ -682,6 +699,8 @@ def set_light_theme():
 
 
 def set_normal_element_theme(item, theme):
+    if item is None:
+        return
     if theme == "Dark":
         item.text_color = "white"
     else:
@@ -724,7 +743,7 @@ class MainApp(MDApp):
         self.manager_open = False
         self.sort_mode = SortMode.PRIORITY
         self.selected_item = None
-        self.selected_item_id = -1
+        self.selected_item_id = None
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
@@ -757,37 +776,55 @@ class MainApp(MDApp):
             app.root.ids.search_text_input.focus = True
 
         # Sort by priority
-        elif codepoint == "q" and modifier == ["ctrl"]:
+        elif codepoint == "1" and modifier == ["ctrl"]:
             app.root.ids.tasks_scroll_view.sort_by_priority()
 
         # Sort by tags
-        elif codepoint == "w" and modifier == ["ctrl"]:
+        elif codepoint == "2" and modifier == ["ctrl"]:
             app.root.ids.tasks_scroll_view.sort_by_tags()
 
         # Sort by projects
-        elif codepoint == "e" and modifier == ["ctrl"]:
+        elif codepoint == "3" and modifier == ["ctrl"]:
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
         elif key == 273:
             print("Arrow up")
-            set_normal_element_theme(self.selected_item)
             if self.selected_item_id + 1 > len(app.root.ids.mdlist.children) - 1:
                 return
-            self.selected_item_id += 1
-            # if isinstance(
-            #     app.root.ids.mdlist.children[self.selected_item_id], TaskListItem
-            # ):
-            #     self.selected_item_id += 1
+            previous_item = self.selected_item
+
+            print(f"{type(app.root.ids.mdlist.children[self.selected_item_id+1])}")
+            if not isinstance(
+                app.root.ids.mdlist.children[self.selected_item_id+1], TaskListItem
+            ):
+                if not self.selected_item_id + 2 > len(app.root.ids.mdlist.children) - 1:
+                    self.selected_item_id += 2
+                else:
+                    return
+            else:
+                self.selected_item_id += 1
             self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
 
         elif key == 274:
-            set_normal_element_theme(self.selected_item)
             print("Arrow down")
             if self.selected_item_id - 1 < 0:
                 return
-            self.selected_item_id -= 1
+            previous_item = self.selected_item
+
+            print(f"{type(app.root.ids.mdlist.children[self.selected_item_id-1])}")
+            if not isinstance(
+                app.root.ids.mdlist.children[self.selected_item_id-1], TaskListItem
+            ):
+                if not self.selected_item_id - 2 < 0:
+                    self.selected_item_id -= 2
+                else:
+                    return
+            else:
+                self.selected_item_id -= 1
             self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
 
     def on_start(self):
@@ -808,6 +845,10 @@ class MainApp(MDApp):
                 set_light_theme()
         else:
             self.dialog.open()
+
+        self.selected_item_id = len(app.root.ids.mdlist.children) - 1
+        self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+        set_active_element_theme(self.selected_item)
 
     def close_dialog(self, *_):
         self.dialog.dismiss()
