@@ -124,10 +124,8 @@ class EditTaskField(Popup):
 
     def accept_task_edit(self, *args):
         app = MDApp.get_running_app()
-        print("Enter pressed")
         old_task = self.task_list_item.task_object
         new_task = func.Task(self.current_input_field.text)
-        print(f"Editing task {old_task.raw_text} to {new_task.raw_text}")
         app.task_manager.edit_task(old_task=old_task, new_task=new_task)
         app.task_manager.save_tasks()
         self.task_list_item.task_object = new_task
@@ -269,7 +267,6 @@ class DeleteIcon(IconRightWidget):
 
     def delete_task(self, *args):
         app = MDApp.get_running_app()
-        print(f"Deleting task {self.task_list_item.text}")
         app.task_manager.delete_task(self.task_list_item.task_object)
         self.task_list_item.parent.remove_widget(self.task_list_item)
         app.task_manager.save_tasks()
@@ -433,15 +430,18 @@ class DarkSearchTextInput(MDTextField):
 
         self.default_size_hint_x = 0.5
         self.default_size_hint_y = 0.08
-
-        self.size_hint_y = self.default_size_hint_y
+        self.default_size_height = 40
+        # self.size_hint_y = self.default_size_hint_y
         self.size_hint_x = self.default_size_hint_x
+        self.height = 40
+        # self.width = 30
 
         self.valign = "center"
         self.pos_hint = {"center_x": 0.5, "center_y": 0.5}
 
         self.hint_text = "search"
-        self.font_size = 300.35 * self.size_hint_y
+        # self.font_size = 300.35 * self.size_hint_y
+        self.font_size = 20
         self.active_line = False
         self.multiline = False
         self.icon_left = "magnify"
@@ -460,19 +460,11 @@ class DarkSearchTextInput(MDTextField):
         if self.focus:
             # Scaling up
             anim = Animation(
-                size_hint=(
-                    self.default_size_hint_x + 0.01,
-                    self.default_size_hint_y + 0.01,
-                ),
-                duration=duration,
-            )
+                size=(self.width, self.height + 5), duration=duration)
             anim.start(self)
         else:
             # Scaling to default
-            anim = Animation(
-                size_hint=(self.default_size_hint_x, self.default_size_hint_y),
-                duration=duration,
-            )
+            anim = Animation(size=(self.width, self.default_size_height), duration=duration)
             anim.start(self)  # start the animation
 
     # TODO: Highlight search results
@@ -516,7 +508,6 @@ def filter_by_search_text_tags(
             task_widget.opacity = 0
             task_widget.disabled = True
             unsearched.append(task_widget)
-    print("SORTING")
     searched_sorted_by_priority = sorted(
         searched,
         key=lambda x: (
@@ -701,7 +692,6 @@ def set_normal_element_theme(item, theme):
 
 
 def set_active_element_theme(item):
-    print(f"{item.text=}")
     item.text_color = "red"
 
 
@@ -803,8 +793,8 @@ class MainApp(MDApp):
             item_id = self.selected_item_id
             self.selected_item = app.root.ids.mdlist.children[item_id]
             set_active_element_theme(self.selected_item)
+        # Arrow up
         elif key == 273:
-            print("Arrow up")
             list_items = app.root.ids.mdlist.children
             if self.selected_item_id + 1 > len(list_items) - 1:
                 return
@@ -819,8 +809,8 @@ class MainApp(MDApp):
             self.selected_item = list_items[self.selected_item_id]
             set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
+        # Arrow down
         elif key == 274:
-            print("Arrow down")
             list_items = app.root.ids.mdlist.children
             if self.selected_item_id - 1 < 0:
                 return
@@ -885,7 +875,6 @@ class MainApp(MDApp):
             self.task_manager.tasks
         )
         for tag_combination in unique_tags_combinations:
-            print(f"{tag_combination=}")
             app.root.ids.mdlist.add_widget(TagsItem(tag_combination))
 
         unique_projects_combinations = (
@@ -893,7 +882,6 @@ class MainApp(MDApp):
         )
 
         for project_combination in unique_projects_combinations:
-            print(f"{project_combination=}")
             app.root.ids.mdlist.add_widget(ProjectsItem(project_combination))
 
         TasksScrollView.sort_all()
