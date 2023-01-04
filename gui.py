@@ -2,6 +2,7 @@
 #
 # Config.set("graphics", "resizable", False)
 from enum import Enum
+from os import wait
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
@@ -680,6 +681,17 @@ def set_light_theme():
     func.save_settings(theme=app.theme_cls.theme_style)
 
 
+def set_active_element_theme(previous_index, index):
+    app = MDApp.get_running_app()
+    if app.theme_cls.theme_style == "Dark":
+        app.root.ids.mdlist.children[previous_index].text_color = "white"
+    else:
+        app.root.ids.mdlist.children[previous_index].text_color = "black"
+
+    app.root.ids.mdlist.children[index].text_color = "red"
+    print(f"{app.root.ids.mdlist.children[index].text=}")
+
+
 class ContentNavigationDrawer(MDBoxLayout):
     pass
 
@@ -710,6 +722,7 @@ class MainApp(MDApp):
         self.task_manager = None
         self.manager_open = False
         self.sort_mode = SortMode.PRIORITY
+        self.selected_item_id = -1
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
@@ -732,10 +745,41 @@ class MainApp(MDApp):
         print(f"{codepoint=}")
         print(f"{modifier=}")
         app = MDApp.get_running_app()
-        if codepoint == 'a':
+
+        # Adding task
+        if codepoint == "a" and modifier == ["ctrl"]:
             app.root.ids.add_task_button.on_release()
 
+        # Starting search
+        elif codepoint == "s" and modifier == ["ctrl"]:
+            app.root.ids.search_text_input.focus = True
 
+        # Sort by priority
+        elif codepoint == "q" and modifier == ["ctrl"]:
+            app.root.ids.tasks_scroll_view.sort_by_priority()
+
+        # Sort by tags
+        elif codepoint == "w" and modifier == ["ctrl"]:
+            app.root.ids.tasks_scroll_view.sort_by_tags()
+
+        # Sort by projects
+        elif codepoint == "e" and modifier == ["ctrl"]:
+            app.root.ids.tasks_scroll_view.sort_by_projects()
+
+        elif key == 273:
+            print("Arrow up")
+            if self.selected_item_id + 1 > len(app.root.ids.mdlist.children) - 1:
+                return
+            self.selected_item_id += 1
+
+            set_active_element_theme(self.selected_item_id - 1, self.selected_item_id)
+
+        elif key == 274:
+            print("Arrow down")
+            if self.selected_item_id - 1 < 0:
+                return
+            self.selected_item_id -= 1
+            set_active_element_theme(self.selected_item_id + 1, self.selected_item_id)
 
     def on_start(self):
         settings = func.read_settings()
