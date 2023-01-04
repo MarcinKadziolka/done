@@ -2,7 +2,6 @@
 #
 # Config.set("graphics", "resizable", False)
 from enum import Enum
-from operator import truediv
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
@@ -61,10 +60,7 @@ class MyCheckBox(MDCheckbox):
 
         app.task_manager.save_tasks()
 
-        task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        current_search_text = app.root.ids.search_text_input.text
-        searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        display_widget_lists(unsearched, searched)
+        TasksScrollView.sort_all()
 
 
 class DoneLeftIcon(IconLeftWidget):
@@ -232,10 +228,6 @@ class AddTaskTextField(Popup):
         self.input_field.text = ""
 
         TasksScrollView.sort_all()
-        # current_search_text = app.root.ids.search_text_input.text
-        # task_widgets = get_task_widgets(app.root.ids.mdlist.children)
-        # searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
-        # display_widget_lists(unsearched, searched)
 
         # Allow for multiple entries
         Clock.schedule_once(self.refocus_ti)
@@ -718,7 +710,6 @@ class MainApp(MDApp):
         self.task_manager = None
         self.manager_open = False
         self.sort_mode = SortMode.PRIORITY
-
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
@@ -730,8 +721,21 @@ class MainApp(MDApp):
         )
 
     def build(self):
+        Window.bind(on_keyboard=self.on_keyboard)
         root = Builder.load_file("gui.kv")
         return root
+
+    def on_keyboard(self, window, key, scancode, codepoint, modifier):
+        print(f"{window=}")
+        print(f"{key=}")
+        print(f"{scancode=}")
+        print(f"{codepoint=}")
+        print(f"{modifier=}")
+        app = MDApp.get_running_app()
+        if codepoint == 'a':
+            app.root.ids.add_task_button.on_release()
+
+
 
     def on_start(self):
         settings = func.read_settings()
