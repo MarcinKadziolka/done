@@ -789,43 +789,59 @@ class MainApp(MDApp):
 
         elif key == 273:
             print("Arrow up")
-            if self.selected_item_id + 1 > len(app.root.ids.mdlist.children) - 1:
+            list_items = app.root.ids.mdlist.children
+            if self.selected_item_id + 1 > len(list_items) - 1:
                 return
             previous_item = self.selected_item
 
-            print(f"{type(app.root.ids.mdlist.children[self.selected_item_id+1])}")
-            if not isinstance(
-                app.root.ids.mdlist.children[self.selected_item_id+1], TaskListItem
-            ):
-                if not self.selected_item_id + 2 > len(app.root.ids.mdlist.children) - 1:
-                    self.selected_item_id += 2
-                else:
+            if not isinstance(list_items[self.selected_item_id + 1], TaskListItem):
+                if self.selected_item_id + 2 > len(list_items) - 1:
                     return
+                self.selected_item_id += 2
             else:
                 self.selected_item_id += 1
-            self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            self.selected_item = list_items[self.selected_item_id]
             set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
 
         elif key == 274:
             print("Arrow down")
+            list_items = app.root.ids.mdlist.children
             if self.selected_item_id - 1 < 0:
                 return
             previous_item = self.selected_item
-
-            print(f"{type(app.root.ids.mdlist.children[self.selected_item_id-1])}")
-            if not isinstance(
-                app.root.ids.mdlist.children[self.selected_item_id-1], TaskListItem
-            ):
-                if not self.selected_item_id - 2 < 0:
-                    self.selected_item_id -= 2
+            if self.selected_item_id - 1 >= 0:
+                next_item = list_items[self.selected_item_id - 1]
+                if isinstance(next_item, TaskListItem):
+                    self.selected_item_id -= 1
+                elif self.selected_item_id - 2 >= 0:
+                    next_item = list_items[self.selected_item_id - 2]
+                    if isinstance(next_item, TaskListItem):
+                        self.selected_item_id -= 2
                 else:
                     return
-            else:
-                self.selected_item_id -= 1
-            self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+            self.selected_item = list_items[self.selected_item_id]
             set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
+        # elif key == 274:
+        #     print("Arrow down")
+        #     if self.selected_item_id - 1 < 0:
+        #         return
+        #     previous_item = self.selected_item
+        #
+        #     print(f"{type(app.root.ids.mdlist.children[self.selected_item_id-1])}")
+        #     if not isinstance(
+        #         app.root.ids.mdlist.children[self.selected_item_id-1], TaskListItem
+        #     ):
+        #         if not self.selected_item_id - 2 < 0:
+        #             self.selected_item_id -= 2
+        #         else:
+        #             return
+        #     else:
+        #         self.selected_item_id -= 1
+        #     self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+        #     set_normal_element_theme(previous_item, app.theme_cls.theme_style)
+        #     set_active_element_theme(self.selected_item)
 
     def on_start(self):
         settings = func.read_settings()
