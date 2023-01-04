@@ -783,11 +783,12 @@ class MainApp(MDApp):
         # Mark selected task as done
         elif codepoint == "x" and modifier == ["ctrl"]:
             checkbox = self.selected_item.children[1].children[0].children[0]
-            if checkbox.state == "down":
-                checkbox.state = "normal"
-            else:
-                checkbox.state = "down"
+            checkbox.state = "down" if checkbox.state == "normal" else "normal"
 
+            set_normal_element_theme(self.selected_item, app.theme_cls.theme_style)
+            item_id = self.selected_item_id
+            self.selected_item = app.root.ids.mdlist.children[item_id]
+            set_active_element_theme(self.selected_item)
         elif key == 273:
             print("Arrow up")
             list_items = app.root.ids.mdlist.children
@@ -804,7 +805,6 @@ class MainApp(MDApp):
             self.selected_item = list_items[self.selected_item_id]
             set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
-
         elif key == 274:
             print("Arrow down")
             list_items = app.root.ids.mdlist.children
