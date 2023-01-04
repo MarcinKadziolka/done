@@ -772,7 +772,8 @@ class MainApp(MDApp):
 
         # Delete selected task
         elif codepoint == "d" and modifier == ["ctrl"]:
-            app.root.ids.mdlist.remove_widget(self.selected_item)
+            delete_object = self.selected_item.children[0].children[0]
+            delete_object.delete_task()
 
         # Mark selected task as done
         elif codepoint == "x" and modifier == ["ctrl"]:
