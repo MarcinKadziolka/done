@@ -316,7 +316,6 @@ class TasksScrollView(ScrollView):
 
     @staticmethod
     def sort_by_priority():
-        print("Sort by priority")
         app = MDApp.get_running_app()
         all_widgets = get_all_widgets()
         task_widgets = get_task_widgets(all_widgets)
@@ -334,7 +333,6 @@ class TasksScrollView(ScrollView):
 
     @staticmethod
     def sort_by_tags():
-        print("Sort by tags")
         app = MDApp.get_running_app()
 
         all_widgets = get_all_widgets()
@@ -377,8 +375,6 @@ class TasksScrollView(ScrollView):
 
     @staticmethod
     def sort_by_projects():
-        print("Sort by projects")
-
         app = MDApp.get_running_app()
         all_widgets = get_all_widgets()
         project_widgets = get_project_widgets(all_widgets)
@@ -745,11 +741,6 @@ class MainApp(MDApp):
         return root
 
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
-        print(f"{window=}")
-        print(f"{key=}")
-        print(f"{scancode=}")
-        print(f"{codepoint=}")
-        print(f"{modifier=}")
         app = MDApp.get_running_app()
 
         # Adding task
@@ -762,14 +753,17 @@ class MainApp(MDApp):
 
         # Sort by priority
         elif codepoint == "1" and modifier == ["ctrl"]:
+            toast("Sorting by priority")
             app.root.ids.tasks_scroll_view.sort_by_priority()
 
         # Sort by tags
         elif codepoint == "2" and modifier == ["ctrl"]:
+            toast("Sorting by tags")
             app.root.ids.tasks_scroll_view.sort_by_tags()
 
         # Sort by projects
         elif codepoint == "3" and modifier == ["ctrl"]:
+            toast("Sorting by projects")
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
         # Edit selected task
@@ -894,6 +888,9 @@ class MainApp(MDApp):
         self.add_and_display_all_widgets()
         set_light_theme()
         func.save_settings(theme="Light")
+        self.selected_item_id = len(self.root.ids.mdlist.children) - 1
+        self.selected_item = self.root.ids.mdlist.children[self.selected_item_id]
+        set_active_element_theme(self.selected_item)
 
     def exit_manager(self, *args):
         """Called when the user reaches the root of the directory tree."""
