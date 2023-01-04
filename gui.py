@@ -330,11 +330,6 @@ class TasksScrollView(ScrollView):
         searched, unsearched = filter_by_search_text(current_search_text, task_widgets)
         display_widget_lists(project_widgets, tags_items, unsearched, searched)
 
-        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
-        app.selected_item_id = len(app.root.ids.mdlist.children) - 1
-        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
-        set_active_element_theme(app.selected_item)
-
         app.sort_mode = app.sort_mode.PRIORITY
 
     @staticmethod
@@ -378,11 +373,6 @@ class TasksScrollView(ScrollView):
 
         display_widget_lists(hidden_tag_widgets, list_to_display)
 
-        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
-        app.selected_item_id = len(app.root.ids.mdlist.children) - 2
-        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
-        set_active_element_theme(app.selected_item)
-
         app.sort_mode = app.sort_mode.TAG
 
     @staticmethod
@@ -424,11 +414,6 @@ class TasksScrollView(ScrollView):
                 hidden_project_tags.append(project_widget)
             list_to_display.extend(current_tasks)
         display_widget_lists(hidden_project_tags, unsearched, list_to_display)
-
-        set_normal_element_theme(app.selected_item, app.theme_cls.theme_style)
-        app.selected_item_id = len(app.root.ids.mdlist.children) - 2
-        app.selected_item = app.root.ids.mdlist.children[app.selected_item_id]
-        set_active_element_theme(app.selected_item)
 
         app.sort_mode = app.sort_mode.PROJECT
 
@@ -787,6 +772,22 @@ class MainApp(MDApp):
         elif codepoint == "3" and modifier == ["ctrl"]:
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
+        # Edit selected task
+        elif codepoint == "e" and modifier == ["ctrl"]:
+            self.selected_item.on_press()
+
+        # Delete selected task
+        elif codepoint == "d" and modifier == ["ctrl"]:
+            app.root.ids.mdlist.remove_widget(self.selected_item)
+
+        # Mark selected task as done
+        elif codepoint == "x" and modifier == ["ctrl"]:
+            checkbox = self.selected_item.children[1].children[0].children[0]
+            if checkbox.state == "down":
+                checkbox.state = "normal"
+            else:
+                checkbox.state = "down"
+
         elif key == 273:
             print("Arrow up")
             list_items = app.root.ids.mdlist.children
@@ -823,25 +824,6 @@ class MainApp(MDApp):
             self.selected_item = list_items[self.selected_item_id]
             set_normal_element_theme(previous_item, app.theme_cls.theme_style)
             set_active_element_theme(self.selected_item)
-        # elif key == 274:
-        #     print("Arrow down")
-        #     if self.selected_item_id - 1 < 0:
-        #         return
-        #     previous_item = self.selected_item
-        #
-        #     print(f"{type(app.root.ids.mdlist.children[self.selected_item_id-1])}")
-        #     if not isinstance(
-        #         app.root.ids.mdlist.children[self.selected_item_id-1], TaskListItem
-        #     ):
-        #         if not self.selected_item_id - 2 < 0:
-        #             self.selected_item_id -= 2
-        #         else:
-        #             return
-        #     else:
-        #         self.selected_item_id -= 1
-        #     self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
-        #     set_normal_element_theme(previous_item, app.theme_cls.theme_style)
-        #     set_active_element_theme(self.selected_item)
 
     def on_start(self):
         settings = func.read_settings()
