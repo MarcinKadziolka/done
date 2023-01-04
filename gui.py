@@ -200,6 +200,10 @@ class AddTaskTextField(Popup):
         return super().on_dismiss()
 
     def on_enter(self, *args):
+        if self.input_field.text == "":
+            toast("Task cannot be empty")
+            self.dismiss()
+            return
         app = MDApp.get_running_app()
         task_to_add = func.Task(self.input_field.text)
 
@@ -774,6 +778,13 @@ class MainApp(MDApp):
         elif codepoint == "d" and modifier == ["ctrl"]:
             delete_object = self.selected_item.children[0].children[0]
             delete_object.delete_task()
+            items_list = app.root.ids.mdlist.children
+            if self.selected_item_id < len(items_list) - 1:
+                self.selected_item = items_list[self.selected_item_id]
+            else:
+                self.selected_item_id -= 1
+                self.selected_item = items_list[self.selected_item_id]
+            set_active_element_theme(self.selected_item)
 
         # Mark selected task as done
         elif codepoint == "x" and modifier == ["ctrl"]:
@@ -839,8 +850,12 @@ class MainApp(MDApp):
         else:
             self.dialog.open()
 
-        self.selected_item_id = len(app.root.ids.mdlist.children) - 1
-        self.selected_item = app.root.ids.mdlist.children[self.selected_item_id]
+        items_list = self.root.ids.mdlist.children
+        length = len(items_list)
+        if length <= 2:
+            return
+        self.selected_item_id = length - 1
+        self.selected_item = self.root.ids.mdlist.children[self.selected_item_id]
         set_active_element_theme(self.selected_item)
 
     def close_dialog(self, *_):
@@ -889,7 +904,12 @@ class MainApp(MDApp):
         self.add_and_display_all_widgets()
         set_light_theme()
         func.save_settings(theme="Light")
-        self.selected_item_id = len(self.root.ids.mdlist.children) - 1
+
+        items_list = self.root.ids.mdlist.children
+        length = len(items_list)
+        if length <= 2:
+            return
+        self.selected_item_id = length - 1
         self.selected_item = self.root.ids.mdlist.children[self.selected_item_id]
         set_active_element_theme(self.selected_item)
 
