@@ -234,6 +234,14 @@ class AddTaskTextField(Popup):
 
         TasksScrollView.sort_all()
 
+        # If the task added is the first in the list
+        # highlight it and set appropriate index
+        if len(app.task_manager.tasks) == 1:
+            list_items = app.root.ids.mdlist.children
+            app.selected_item_id = len(list_items) - 1
+            app.selected_item = list_items[app.selected_item_id]
+            set_active_element_theme(app.selected_item)
+
         # Allow for multiple entries
         Clock.schedule_once(self.refocus_ti)
 
