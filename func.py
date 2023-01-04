@@ -94,8 +94,6 @@ class TaskManager:
     def save_tasks(self) -> None:
         # Writes every task as separate line to the file
         raw_tasks = [task.raw_text for task in self.tasks]
-        # print(f"Saving {self.file_name}...")
-        # print(f"Tasks: {raw_tasks}")
         with open(self.file_path, encoding="utf-8", mode="w") as file:
             file.write("\n".join(raw_tasks))
 
