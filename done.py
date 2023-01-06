@@ -625,6 +625,7 @@ def set_dark_theme():
     app = MDApp.get_running_app()
     task_widgets = get_task_widgets(app.root.ids.mdlist.children)
     tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
+    projects_widgets = get_project_widgets(app.root.ids.mdlist.children)
     # Setting dark theme
     app.theme_cls.theme_style = "Dark"
     app.root.ids.settingslabel.text_color = "white"
@@ -638,6 +639,9 @@ def set_dark_theme():
 
     for tag in tags_widgets:
         tag.text_color = "white"
+
+    for project in projects_widgets:
+        project.text_color = "white"
 
     app.root.ids.add_task_button.line_color = "#add8e6"
     # Creating a new search field with the light_theme
@@ -655,6 +659,7 @@ def set_light_theme():
     app = MDApp.get_running_app()
     task_widgets = get_task_widgets(app.root.ids.mdlist.children)
     tags_widgets = get_tag_widgets(app.root.ids.mdlist.children)
+    projects_widgets = get_project_widgets(app.root.ids.mdlist.children)
 
     # Setting light theme
     app.theme_cls.theme_style = "Light"
@@ -669,6 +674,9 @@ def set_light_theme():
 
     for tag in tags_widgets:
         tag.text_color = "black"
+
+    for project in projects_widgets:
+        project.text_color = "black"
 
     app.root.ids.add_task_button.line_color = "black"
     # Creating a new search field with the light_theme
