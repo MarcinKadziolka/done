@@ -47,7 +47,7 @@ done_venv\Scripts\activate
 ~~~
 After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_venv) computer@ubuntu:~/Desktop/Done$
+(done_venv) C:/Users/username/Desktop/Done>
 ~~~
 ### Install all dependencies from requirements.txt file
 ~~~
