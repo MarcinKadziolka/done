@@ -1,0 +1,6 @@
+Edit task by clicking on it or selecting it and pressing "Ctrl+Shift+e" @tag +project
+(B) <- This is a priority. To change sort modes press "Ctrl+Shift+1" or "2" or "3"
+x Mark task as done/undone by clicking checkmark or pressing "Ctrl+Shift+x"
+Delete task by clicking trash icon, or selecting it and pressing "Ctrl+Shift+d" @tag
+Add task by clicking "+" button or "Ctrl+Shift+a". Confirm with "enter". Exit with "Esc"
+(A) Up and down arrow keys to select tasks +project
