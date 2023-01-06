@@ -170,5 +170,18 @@ To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks 
 
 ![](https://media2.giphy.com/media/1kKQnG24jVBbjJvEvz/giphy.gif)
 
+## All shortcuts
+| Action  | Shortcut |
+| ------------- | ------------- |
+| Add task  | `Ctrl+Shift+a`  |
+| Edit task  | `Ctrl+Shift+e`  |
+| Delete task  | `Ctrl+Shift+d`  |
+| Complete task  | `Ctrl+Shift+x`  |
+| Sort by priority  | `Ctrl+Shift+1`  |
+| Sort by tags  | `Ctrl+Shift+2`  |
+| Sort by projects  | `Ctrl+Shift+3`  |
+| Go to search bar  | `Ctrl+Shift+s`  |
+
+
 # Troubleshooting
 If app crashes on start try deleting settings.txt that is stored in app installation directory.
