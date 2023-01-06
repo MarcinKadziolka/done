@@ -1,6 +1,7 @@
 # from kivy.config import Config
 #
 # Config.set("graphics", "resizable", False)
+from os import path
 from enum import Enum
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
@@ -728,7 +729,7 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "BlueGray"
         self.title = "Done"
-        self.path = None
+        self.path = "./tutorial.txt"
         self.task_manager = None
         self.manager_open = False
         self.sort_mode = SortMode.PRIORITY
@@ -751,36 +752,35 @@ class MainApp(MDApp):
 
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
         app = MDApp.get_running_app()
-
         # Adding task
-        if codepoint == "a" and modifier == ["ctrl"]:
+        if codepoint == "a" and modifier == ["ctrl", "shift"]:
             app.root.ids.add_task_button.on_release()
 
         # Starting search
-        elif codepoint == "s" and modifier == ["ctrl"]:
+        elif codepoint == "s" and modifier == ["ctrl", "shift"]:
             app.root.ids.search_text_input.focus = True
 
         # Sort by priority
-        elif codepoint == "1" and modifier == ["ctrl"]:
+        elif codepoint == "1" and modifier == ["ctrl", "shift"]:
             toast("Sorting by priority")
             app.root.ids.tasks_scroll_view.sort_by_priority()
 
         # Sort by tags
-        elif codepoint == "2" and modifier == ["ctrl"]:
+        elif codepoint == "2" and modifier == ["ctrl", "shift"]:
             toast("Sorting by tags")
             app.root.ids.tasks_scroll_view.sort_by_tags()
 
         # Sort by projects
-        elif codepoint == "3" and modifier == ["ctrl"]:
+        elif codepoint == "3" and modifier == ["ctrl", "shift"]:
             toast("Sorting by projects")
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
         # Edit selected task
-        elif codepoint == "e" and modifier == ["ctrl"]:
+        elif codepoint == "e" and modifier == ["ctrl", "shift"]:
             self.selected_item.on_press()
 
         # Delete selected task
-        elif codepoint == "d" and modifier == ["ctrl"]:
+        elif codepoint == "d" and modifier == ["ctrl", "shift"]:
             delete_object = self.selected_item.children[0].children[0]
             delete_object.delete_task()
             items_list = app.root.ids.mdlist.children
@@ -792,7 +792,7 @@ class MainApp(MDApp):
             set_active_element_theme(self.selected_item)
 
         # Mark selected task as done
-        elif codepoint == "x" and modifier == ["ctrl"]:
+        elif codepoint == "x" and modifier == ["ctrl", "shift"]:
             checkbox = self.selected_item.children[1].children[0].children[0]
             checkbox.state = "down" if checkbox.state == "normal" else "normal"
 
@@ -845,13 +845,17 @@ class MainApp(MDApp):
         app.root.ids["search_text_input"] = search_widget
         app.root.ids.mainbox.add_widget(search_widget, 2)
 
-        if settings:
-            self.task_manager = func.TaskManager(settings["path"])
-            self.add_and_display_all_widgets()
-            if settings["theme"] == "Dark":
-                set_dark_theme()
+        if settings or path.exists(self.path):
+            if settings:
+                self.task_manager = func.TaskManager(settings["path"])
+                if settings["theme"] == "Dark":
+                    set_dark_theme()
+                else:
+                    set_light_theme()
             else:
+                self.task_manager = func.TaskManager(self.path)
                 set_light_theme()
+            self.add_and_display_all_widgets()
         else:
             self.dialog.open()
 
