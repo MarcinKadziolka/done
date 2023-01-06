@@ -14,14 +14,20 @@ As of right now app, while providing full basic functionality, is not fully yet 
 To run the app you must have [Python](https://www.python.org/) installed on your computer. It is assumed that [git](https://git-scm.com/) is installed and working.
 
 ### Go to desired installation place
+In this example desktop will be used
+#### On linux
 ~~~
 cd ~/Desktop
 ~~~
-Clone the project
+#### On Windows
+~~~
+cd %userprofile%\Desktop
+~~~
+### Clone the project
 ~~~
 git clone https://github.com/MarcinKadziolka/Done
 ~~~
-Enter created directory
+### Enter created directory
 ~~~
 cd Done
 ~~~
@@ -43,7 +49,7 @@ source done_venv/bin/activate
 ~~~
 done_venv/Scripts/activate
 ~~~
-After activating environment you should see name of your virtual environment preceeding command line, for example:
+#### After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
 (done_venv) computer@ubuntu:~/Desktop/Done$
 ~~~
@@ -59,3 +65,5 @@ python3 done.py
 ~~~
 deactivate
 ~~~
+## Usage
+
