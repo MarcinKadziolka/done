@@ -1,6 +1,8 @@
 # Done
 Minimalistic keyboard-driven desktop application for managing tasks and projects in [todo.txt](https://github.com/todotxt/todo.txt) format
+
 ![](assets/images/done_dark_theme.png)
+
 ![](assets/images/done_light_theme.png)
 
 # Description
