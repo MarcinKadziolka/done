@@ -66,7 +66,7 @@ class MyCheckBox(MDCheckbox):
 class DoneLeftIcon(IconLeftWidget):
     def __init__(self, task_list_item, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = "transparent.png"
+        self.icon = "assets/images/transparent.png"
         self.done_check_box = MyCheckBox(task_list_item)
         self.add_widget(self.done_check_box)
 
