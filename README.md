@@ -17,7 +17,7 @@ To run the app you must have [Python](https://www.python.org/) installed on your
 
 ### Go to desired installation place
 In this example desktop will be used
-#### On linux
+#### On Linux
 ~~~
 cd ~/Desktop
 ~~~
@@ -43,11 +43,11 @@ python3 -m venv done_venv
 virtualenv done_venv
 ~~~
 ### Activate the environment
-#### On linux
+#### On Linux
 ~~~
 source done_venv/bin/activate
 ~~~
-#### On windows
+#### On Windows
 ~~~
 done_venv\Scripts\activate
 ~~~
