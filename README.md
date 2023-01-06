@@ -15,7 +15,7 @@ As of right now app, while providing full basic functionality, is not fully yet 
 # Installation
 To run the app you must have [Python](https://www.python.org/) installed on your computer. It is assumed that [git](https://git-scm.com/) is installed and working.
 
-## Windows
+## Windows installation
 
 ### Go to desired installation place
 ~~~
@@ -59,7 +59,7 @@ python done.py
 ~~~
 deactivate
 ~~~
-## Linux
+## Linux installation
 ### Go to desired installation place
 In this example desktop will be used
 ~~~
