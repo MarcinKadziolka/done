@@ -1,5 +1,5 @@
 # Done
-Minimalistic desktop application for managing tasks and projects in [todo.txt](http://todotxt.org/todo.txt) format
+Minimalistic keyboard-driven desktop application for managing tasks and projects in [todo.txt](https://github.com/todotxt/todo.txt) format
 ![](assets/images/done_dark_theme.png)
 ![](assets/images/done_light_theme.png)
 
@@ -52,7 +52,6 @@ After activating environment you should see name of your virtual environment pre
 pip install -r requirements.txt
 ~~~
 ### Run the app
-Note that on first use you must have text file created on your machine in order to use the app.
 ~~~
 python done.py
 ~~~
@@ -97,7 +96,6 @@ After activating environment you should see name of your virtual environment pre
 pip install -r requirements.txt
 ~~~
 ### Run the app
-Note that on first use you must have text file created on your machine in order to use the app.
 ~~~
 python3 done.py
 ~~~
@@ -105,6 +103,45 @@ python3 done.py
 ~~~
 deactivate
 ~~~
-
 # Usage
+Application provides functionality basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
+## Basic functionality
+### Selecting tasks
+To select tasks use up and down arrow keys or use mouse to perform actions. Selected tasks text will appear in red.
+### Adding tasks
+To add task click the "+" button or press `Ctrl+Shift+a` and an input field will popup. After typing in task press Enter to add task to list. The input field is in fast adding mode meaning it doesn't dismiss itsel after adding task. To exit press Esc key two times.
+### Editing tasks
+To edit task click on it or select it and press `Ctrl+Shift+e` and an editing field will popup. Press enter to save changes.
+### Deleting tasks
+To delete task click on trash icon or select it and press `Ctrl+Shift+d`.
+## Sorting
+### Priority
+Priority is given by writing a capital letter in parenthesis before task description
+~~~
+(B) Write a README.md for Done project
+~~~
+Priority will make task appear on top of the list. Strength of priority is measured alphabetically so A > B ... > Z
+### Tags
+Tag is every word that begins with a '@' character. Tasks can have zero, one or more tags and they are used to group tasks together.
+~~~
+Wish grandma a happy birthday @call
+~~~
+### Projects
+Project is every word that begins with a "+" character. Tasks can have zero, one or more projects and they are used to group tasks together.
+~~~
+Prove that real part of every nontrivial zero of the Riemann zeta function is 1/2 +math101
+~~~
+### Sorting by priority
+To sort by priority click first icon in upper right corner or press `Ctrl+Shift+1`. Tasks will be sorted by: 
+1. Completion status 
+2. Priority 
+3. Alphabetical order 
+### Sorting by tags
+To sort by tags click second icon in upper right corner or press `Ctrl+Shift+2`. Tasks will be grouped together by their tags. Tags are sorted alphabetically. Tasks without any tags will be displayed last. Within tag groups tasks are sorted like priority sort.
+### Sorting by projects
+To sort by projects click second icon in upper right corner or press `Ctrl+Shift+3`. Tasks will be grouped together by their projects. Projects are sorted alphabetically. Tasks without any projects will be displayed last. Within projects groups tasks are sorted like priority sort.
+### Searching
+To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks that contain substring provided will be displayed.
 
+# Troubleshooting
+If app crashes on start try deleting settings.txt that is stored in app installation directory.
