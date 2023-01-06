@@ -105,6 +105,11 @@ deactivate
 ~~~
 # Usage
 Application provides basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
+## Choosing file
+On first use you app will open with tutorial.txt file. To change it open navbar, click "Choose file" and navigate to your file. Note: Click once to enter directory/open file.
+
+![](https://media2.giphy.com/media/huSioobHk9XiITooz0/giphy.gif)
+
 ## Basic functionality
 ### Selecting tasks
 To select tasks use up and down arrow keys. Selected tasks text will appear in red.
@@ -182,6 +187,10 @@ To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks 
 | Sort by projects  | `Ctrl+Shift+3`  |
 | Go to search bar  | `Ctrl+Shift+s`  |
 
+## Changing theme
+To change theme open navbar and choose theme.
+
+![](https://media2.giphy.com/media/B9Wfx4IU1Pjm5ZfVxZ/giphy.gif)
 
 # Troubleshooting
 If app crashes on start try deleting settings.txt that is stored in app installation directory.
