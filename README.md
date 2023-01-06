@@ -1,5 +1,7 @@
 # Done
 Minimalistic desktop application for managing tasks and projects in [todo.txt](http://todotxt.org/todo.txt) format
+![](assets/images/done_dark_theme.png)
+![](assets/images/done_light_theme.png)
 
 ## Description
 Application provides simplistic yet pretty graphical user interface for easier managment of tasks in provided text file formatted by the rules of the todo.txt.
