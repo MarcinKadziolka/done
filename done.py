@@ -739,7 +739,7 @@ class MainApp(MDApp):
 
     def build(self):
         Window.bind(on_keyboard=self.on_keyboard)
-        root = Builder.load_file("gui.kv")
+        root = Builder.load_file("done.kv")
         return root
 
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
