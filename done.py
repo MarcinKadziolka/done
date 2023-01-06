@@ -753,25 +753,25 @@ class MainApp(MDApp):
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
         app = MDApp.get_running_app()
         # Adding task
-        if codepoint == "a" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        if codepoint == "a" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             app.root.ids.add_task_button.on_release()
 
         # Starting search
-        elif codepoint == "s" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "s" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             app.root.ids.search_text_input.focus = True
 
         # Sort by priority
-        elif codepoint == "1" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "1" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             toast("Sorting by priority")
             app.root.ids.tasks_scroll_view.sort_by_priority()
 
         # Sort by tags
-        elif codepoint == "2" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "2" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             toast("Sorting by tags")
             app.root.ids.tasks_scroll_view.sort_by_tags()
 
         # Sort by projects
-        elif codepoint == "3" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "3" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             toast("Sorting by projects")
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
@@ -780,7 +780,7 @@ class MainApp(MDApp):
             self.selected_item.on_press()
 
         # Delete selected task
-        elif codepoint == "d" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "d" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
             delete_object = self.selected_item.children[0].children[0]
             delete_object.delete_task()
             items_list = app.root.ids.mdlist.children
