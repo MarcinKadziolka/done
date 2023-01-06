@@ -141,7 +141,7 @@ To sort by tags click second icon in upper right corner or press `Ctrl+Shift+2`.
 ### Sorting by projects
 To sort by projects click second icon in upper right corner or press `Ctrl+Shift+3`. Tasks will be grouped together by their projects. Projects are sorted alphabetically. Tasks without any projects will be displayed last. Within projects groups tasks are sorted like priority sort.
 ### Searching
-To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks that contain substring provided will be displayed.
+To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks that contain entered substring provided will be displayed. Press Esc to exit.
 
 # Troubleshooting
 If app crashes on start try deleting settings.txt that is stored in app installation directory.
