@@ -1,5 +1,5 @@
 # Done
-Minimalistic keyboard-driven desktop application for managing tasks and projects in [todo.txt](https://github.com/todotxt/todo.txt) format
+Minimalistic keyboard-driven desktop application for managing tasks and projects in [todo.txt](https://github.com/todotxt/todo.txt) format.
 
 ![](assets/images/done_dark_theme.png)
 
@@ -108,7 +108,7 @@ deactivate
 # Usage
 Application provides basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
 ## Choosing file
-On first use you app will open with tutorial.txt file. To change it open navbar, click "Choose file" and navigate to your file. Note: Click once to enter directory/open file.
+On first use app will open with tutorial.txt file. To change it open navbar, click "Choose file" and navigate to your file. Note: Click once to enter directory/open file.
 
 ![](https://media2.giphy.com/media/huSioobHk9XiITooz0/giphy.gif)
 
