@@ -11,48 +11,51 @@ Application is written in Python with kivy and kivyMD library.
 As of right now app, while providing full basic functionality, is not fully yet developed and there are possible features to add.
 
 ## Installation
-To run the app you must have [Python](https://www.python.org/) installed on your computer.
+To run the app you must have [Python](https://www.python.org/) installed on your computer. It is assumed that [git](https://git-scm.com/) is installed and working.
 
-### Step 1
-Go to desired installation place
+### Go to desired installation place
 ~~~
 cd ~/Desktop
 ~~~
-This command will create directory 'Done'
+Clone the project
 ~~~
 git clone https://github.com/MarcinKadziolka/Done
 ~~~
-Enter this new directory
+Enter created directory
 ~~~
 cd Done
 ~~~
-Create new virtual environment
-Using venv
+### Create new virtual environment
+#### Using venv
 ~~~
 python3 -m venv done_venv
 ~~~
-Using virtualenv
+#### Using virtualenv
 ~~~
-python3 -m virtualenv done_venv
+virtualenv done_venv
 ~~~
-Activate the environment
-On linux
+### Activate the environment
+#### On linux
 ~~~
 source done_venv/bin/activate
 ~~~
-On windows
+#### On windows
 ~~~
-windows activation here
+done_venv/Scripts/activate
 ~~~
-After activating environment you should see name of your virtual environment preceeding command line
+After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_venv) computer@ubuntu: ~/Desktop/Done$
+(done_venv) computer@ubuntu:~/Desktop/Done$
 ~~~
-Install all dependencies from requirements.txt file
+### Install all dependencies from requirements.txt file
 ~~~
 pip install -r requirements.txt
 ~~~
-Run the app
+### Run the app
 ~~~
 python3 done.py
+~~~
+### After finishing using the app, deactivate the environment
+~~~
+deactivate
 ~~~
