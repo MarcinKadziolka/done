@@ -18,6 +18,7 @@ To run the app you must have [Python](https://www.python.org/) installed on your
 ## Windows installation
 
 ### Go to desired installation place
+In this example desktop will be used
 ~~~
 cd %userprofile%\Desktop
 ~~~
