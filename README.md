@@ -104,22 +104,30 @@ python3 done.py
 deactivate
 ~~~
 # Usage
-Application provides functionality basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
+Application provides basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
 ## Basic functionality
 ### Selecting tasks
-To select tasks use up and down arrow keys or use mouse to perform actions. Selected tasks text will appear in red.
+To select tasks use up and down arrow keys. Selected tasks text will appear in red.
 ### Adding tasks
 To add task click the "+" button or press `Ctrl+Shift+a` and an input field will popup. After typing in task press Enter to add task to list. The input field is in fast adding mode meaning it doesn't dismiss itsel after adding task. To exit press Esc key two times.
+
 ![](https://media4.giphy.com/media/HcHoUlMMFSbGIGINXS/giphy.gif?cid=790b7611ef766ddde2ed90b8dd229a39d52d6434e76e7175&rid=giphy.gif&ct=g)
+
 ### Editing tasks
 To edit task click on it or select it and press `Ctrl+Shift+e` and an editing field will popup. Press enter to save changes.
+
 ![](https://media0.giphy.com/media/H3FvKOmHlo17tg5NRC/giphy.gif)
+
 ### Deleting tasks
 To delete task click on trash icon or select it and press `Ctrl+Shift+d`.
+
 ![](https://media2.giphy.com/media/yOykBija5L2k0vTOiN/giphy.gif)
+
 ### Completing tasks
 To mark task as completed click on the checkmark or select it and press `Ctrl+Shift+x`. Tasks are marked with an 'x' at the beginning.
+
 ![](https://media4.giphy.com/media/CpAXnyro0Ub3aNwYQl/giphy.gif)
+
 ## Sorting
 ### Priority
 Priority is given by writing a capital letter in parenthesis before task description
@@ -144,16 +152,22 @@ To sort by priority click first icon in upper right corner or press `Ctrl+Shift+
 1. Completion status 
 2. Priority 
 3. Alphabetical order 
+
 <img src="assets/images/priority.png" width="600">
 
 ### Sorting by tags
 To sort by tags click second icon in upper right corner or press `Ctrl+Shift+2`. Tasks will be grouped together by their tags. Tags are sorted alphabetically. Tasks without any tags will be displayed last. Within tag groups tasks are sorted like priority sort.
+
 <img src="assets/images/sorting_by_tags.png" width="600">
+
 ### Sorting by projects
 To sort by projects click second icon in upper right corner or press `Ctrl+Shift+3`. Tasks will be grouped together by their projects. Projects are sorted alphabetically. Tasks without any projects will be displayed last. Within projects groups tasks are sorted like priority sort.
+
 <img src="assets/images/sorting_by_projects.png" width="600">
+
 ### Searching
 To search tasks click on the search bar or press `Ctrl+Shift+s`. Only the tasks that contain entered substring provided will be displayed. Press Esc to exit.
+
 ![](https://media2.giphy.com/media/1kKQnG24jVBbjJvEvz/giphy.gif)
 
 # Troubleshooting
