@@ -2,7 +2,6 @@
 #
 # Config.set("graphics", "resizable", False)
 from enum import Enum
-from os import wait
 from kivy.lang import Builder
 from kivymd.app import Clock, MDApp
 from kivymd.uix.label import MDLabel
