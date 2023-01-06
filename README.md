@@ -49,9 +49,9 @@ source done_venv/bin/activate
 ~~~
 #### On windows
 ~~~
-done_venv/Scripts/activate
+done_venv\Scripts\activate
 ~~~
-#### After activating environment you should see name of your virtual environment preceeding command line, for example:
+After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
 (done_venv) computer@ubuntu:~/Desktop/Done$
 ~~~
@@ -61,7 +61,7 @@ pip install -r requirements.txt
 ~~~
 ### Run the app
 ~~~
-python3 done.py
+python done.py
 ~~~
 ### After finishing using the app, deactivate the environment
 ~~~
