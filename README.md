@@ -6,13 +6,13 @@ Minimalistic keyboard-driven desktop application for managing tasks and projects
 ![](assets/images/done_light_theme.png)
 
 # Description
-Application provides simplistic yet pretty graphical user interface for easier managment of tasks in provided text file formatted by the rules of the todo.txt.
+Application provides simplistic, yet pretty graphical user interface for easier managment of tasks in provided text file, formatted by the rules of the todo.txt.
 Goal of this project is to provide the unnecessary functionality and smooth usage with addition of good looking themes.
 Motivation was not being able to find a compromise between looks, functionality and keyboard-driven approach in other existing apps.
 
 Application is written in Python with kivy and kivyMD library.
 
-As of right now app, while providing full basic functionality, is not fully yet developed and there are possible features to add.
+As of right now app, while providing full basic functionality, is not fully developed and there are possible features to add.
 
 # Installation
 To run the app you must have [Python](https://www.python.org/) installed on your computer. It is assumed that [git](https://git-scm.com/) is installed and working.
@@ -108,7 +108,7 @@ deactivate
 # Usage
 Application provides basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
 ## Choosing file
-On first use app will open with tutorial.txt file. To change it open navbar, click "Choose file" and navigate to your file. Note: Click once to enter directory/open file.
+On first use app will open with tutorial.txt file. To change it, open navbar, click "Choose file" and navigate to your file. Note: Click once to enter directory/open file.
 
 ![](https://media2.giphy.com/media/huSioobHk9XiITooz0/giphy.gif)
 
@@ -116,7 +116,7 @@ On first use app will open with tutorial.txt file. To change it open navbar, cli
 ### Selecting tasks
 To select tasks use up and down arrow keys. Selected tasks text will appear in red.
 ### Adding tasks
-To add task click the "+" button or press `Ctrl+Shift+a` and an input field will popup. After typing in task press Enter to add task to list. The input field is in fast adding mode meaning it doesn't dismiss itsel after adding task. To exit press Esc key two times.
+To add task click the "+" button or press `Ctrl+Shift+a` and an input field will popup. After typing in task press Enter to add task to list. The input field is in fast adding mode meaning it doesn't dismiss itself after adding task. To exit press Esc key two times.
 
 ![](https://media4.giphy.com/media/HcHoUlMMFSbGIGINXS/giphy.gif?cid=790b7611ef766ddde2ed90b8dd229a39d52d6434e76e7175&rid=giphy.gif&ct=g)
 
@@ -141,7 +141,7 @@ Priority is given by writing a capital letter in parenthesis before task descrip
 ~~~
 (B) Write a README.md for Done project
 ~~~
-Priority will make task appear on top of the list. Strength of priority is measured alphabetically so A > B ... > Z
+Priority will make task appear on top of the list. Strength of priority is measured alphabetically, so A > B ... > Z
 
 ### Tags
 Tag is every word that begins with a '@' character. Tasks can have zero, one or more tags and they are used to group tasks together.
