@@ -7,7 +7,7 @@ Minimalistic keyboard-driven desktop application for managing tasks and projects
 
 # Description
 Application provides simplistic, yet pretty graphical user interface for easier managment of tasks in provided text file, formatted by the rules of the todo.txt.
-Goal of this project is to provide the unnecessary functionality and smooth usage with addition of good looking themes.
+Goal of this project is to provide the necessary functionality and smooth usage with addition of good looking themes.
 Motivation was not being able to find a compromise between looks, functionality and keyboard-driven approach in other existing apps.
 
 Application is written in Python with kivy and kivyMD library.
