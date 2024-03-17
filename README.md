@@ -33,25 +33,17 @@ git clone git@github.com:MarcinKadziolka/Done.git
 cd Done
 ~~~
 ### Create new virtual environment
-#### - Using venv
+#### - Using conda
 ~~~
-python -m venv done_venv
-~~~
-#### - Using virtualenv
-~~~
-virtualenv done_venv
+conda env create -f environment.yml
 ~~~
 ### Activate the environment
 ~~~
-done_venv\Scripts\activate
+conda activate done_env
 ~~~
 After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_venv) C:/Users/username/Desktop/Done>
-~~~
-### Install all dependencies from requirements.txt file
-~~~
-pip install -r requirements.txt
+(done_env) C:/Users/username/Desktop/Done>
 ~~~
 ### Run the app
 ~~~
@@ -59,7 +51,7 @@ python done.py
 ~~~
 ### After finishing using the app, deactivate the environment
 ~~~
-deactivate
+conda deactivate
 ~~~
 ## Linux installation
 ### Go to desired installation place
@@ -67,7 +59,6 @@ In this example desktop will be used
 ~~~
 cd ~/Desktop
 ~~~
-
 ### Clone the project
 ~~~
 git clone git@github.com:MarcinKadziolka/Done.git
@@ -77,25 +68,17 @@ git clone git@github.com:MarcinKadziolka/Done.git
 cd Done
 ~~~
 ### Create new virtual environment
-#### - Using venv
+#### - Using conda
 ~~~
-python3 -m venv done_venv
-~~~
-#### - Using virtualenv
-~~~
-virtualenv done_venv
+conda env create -f environment.yml
 ~~~
 ### Activate the environment
 ~~~
-source done_venv/bin/activate
+conda activate done_env
 ~~~
 After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_venv) computer@ubuntu:~/Desktop/Done$
-~~~
-### Install all dependencies from requirements.txt file
-~~~
-pip install -r requirements.txt
+(done_env) computer@ubuntu:~/Desktop/Done$
 ~~~
 ### Run the app
 ~~~
@@ -103,7 +86,7 @@ python3 done.py
 ~~~
 ### After finishing using the app, deactivate the environment
 ~~~
-deactivate
+conda deactivate
 ~~~
 # Usage
 Application provides basic functionality such as adding, editing and deleting tasks. App allows to prioritize tasks, tag them and to collect them in projects. Search bar allows for quickly finding tasks. All functionality is achievable with shortcuts.
