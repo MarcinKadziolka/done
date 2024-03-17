@@ -26,11 +26,11 @@ cd %userprofile%\Desktop
 ~~~
 ### Clone the project
 ~~~
-git clone git@github.com:MarcinKadziolka/Done.git
+git clone git@github.com:MarcinKadziolka/done.git
 ~~~
 ### Enter created directory
 ~~~
-cd Done
+cd done
 ~~~
 ### Create new virtual environment
 #### - Using conda
@@ -43,7 +43,7 @@ conda activate done_env
 ~~~
 After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_env) C:/Users/username/Desktop/Done>
+(done_env) C:/Users/username/Desktop/done>
 ~~~
 ### Run the app
 ~~~
@@ -61,11 +61,11 @@ cd ~/Desktop
 ~~~
 ### Clone the project
 ~~~
-git clone git@github.com:MarcinKadziolka/Done.git
+git clone git@github.com:MarcinKadziolka/done.git
 ~~~
 ### Enter created directory
 ~~~
-cd Done
+cd done
 ~~~
 ### Create new virtual environment
 #### - Using conda
@@ -78,7 +78,7 @@ conda activate done_env
 ~~~
 After activating environment you should see name of your virtual environment preceeding command line, for example:
 ~~~
-(done_env) computer@ubuntu:~/Desktop/Done$
+(done_env) computer@ubuntu:~/Desktop/done$
 ~~~
 ### Run the app
 ~~~
