@@ -26,7 +26,7 @@ cd %userprofile%\Desktop
 ~~~
 ### Clone the project
 ~~~
-git clone git@github.com:MarcinKadziolka/done.git
+git clone https://github.com/MarcinKadziolka/done.git
 ~~~
 ### Enter created directory
 ~~~
@@ -61,7 +61,7 @@ cd ~/Desktop
 ~~~
 ### Clone the project
 ~~~
-git clone git@github.com:MarcinKadziolka/done.git
+git clone https://github.com/MarcinKadziolka/done.git
 ~~~
 ### Enter created directory
 ~~~
