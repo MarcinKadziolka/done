@@ -459,12 +459,13 @@ class DarkSearchTextInput(MDTextField):
         duration = 0.05
         if self.focus:
             # Scaling up
-            anim = Animation(
-                size=(self.width, self.height + 5), duration=duration)
+            anim = Animation(size=(self.width, self.height + 5), duration=duration)
             anim.start(self)
         else:
             # Scaling to default
-            anim = Animation(size=(self.width, self.default_size_height), duration=duration)
+            anim = Animation(
+                size=(self.width, self.default_size_height), duration=duration
+            )
             anim.start(self)  # start the animation
 
     # TODO: Highlight search results
@@ -753,34 +754,48 @@ class MainApp(MDApp):
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
         app = MDApp.get_running_app()
         # Adding task
-        if codepoint == "a" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        if codepoint == "a" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             app.root.ids.add_task_button.on_release()
 
         # Starting search
-        elif codepoint == "s" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        elif codepoint == "s" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             app.root.ids.search_text_input.focus = True
 
         # Sort by priority
-        elif codepoint == "1" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        elif codepoint == "1" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             toast("Sorting by priority")
             app.root.ids.tasks_scroll_view.sort_by_priority()
 
         # Sort by tags
-        elif codepoint == "2" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        elif codepoint == "2" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             toast("Sorting by tags")
             app.root.ids.tasks_scroll_view.sort_by_tags()
 
         # Sort by projects
-        elif codepoint == "3" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        elif codepoint == "3" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             toast("Sorting by projects")
             app.root.ids.tasks_scroll_view.sort_by_projects()
 
         # Edit selected task
-        elif codepoint == "e" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "e" and (
+            modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]
+        ):
             self.selected_item.on_press()
 
         # Delete selected task
-        elif codepoint == "d" and (modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]):
+        elif codepoint == "d" and (
+            modifier == ["ctrl", "shift"] or modifier == ["shift", "ctrl"]
+        ):
             delete_object = self.selected_item.children[0].children[0]
             delete_object.delete_task()
             items_list = app.root.ids.mdlist.children
@@ -792,7 +807,9 @@ class MainApp(MDApp):
             set_active_element_theme(self.selected_item)
 
         # Mark selected task as done
-        elif codepoint == "x" and (modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]):
+        elif codepoint == "x" and (
+            modifier == ["ctrl", "shift"] or modifier == ["ctrl", "shift"]
+        ):
             checkbox = self.selected_item.children[1].children[0].children[0]
             checkbox.state = "down" if checkbox.state == "normal" else "normal"
 

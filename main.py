@@ -1,4 +1,5 @@
 import func
+
 tm = func.TaskManager("./file.txt")
 
 
@@ -13,7 +14,7 @@ def user_choice():
     return user_input
 
 
-while(1):
+while 1:
     user_input = user_choice()
     print()
     print()
